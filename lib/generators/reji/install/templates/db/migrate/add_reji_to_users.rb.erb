@@ -1,0 +1,16 @@
+class AddRejiToUsers < ActiveRecord::Migration<%= migration_version %>
+  def self.up
+    change_table :users do |t|
+      t.string :stripe_id
+      t.string :card_brand
+      t.string :card_last_four, limit: 4
+      t.timestamp :trial_ends_at
+    end
+  end
+
+  def self.down
+    change_table :users do |t|
+      t.remove :stripe_id, :card_brand, :card_last_four, :trial_ends_at
+    end
+  end
+end

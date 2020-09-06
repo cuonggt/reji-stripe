@@ -1,0 +1,14 @@
+!.keep
+*.DS_Store
+*.swo
+*.swp
+*~
+.bundle
+db/*.sqlite3
+gemfiles/*.lock
+gemfiles/vendor/
+log/*.log
+pkg
+tmp/
+doc/
+.yardoc/

@@ -1,0 +1,22 @@
+class CreateSubscriptions < ActiveRecord::Migration<%= migration_version %>
+  def self.up
+    create_table :subscriptions<%= migration_primary_key_type_string %> do |t|
+      t.bigint :user_id, null: false
+      t.string :name, null: false
+      t.string :stripe_id, null: false
+      t.string :stripe_status, null: false
+      t.string :stripe_plan
+      t.integer :quantity
+      t.timestamp :trial_ends_at
+      t.timestamp :ends_at
+
+      t.timestamps
+
+      t.index [:user_id, :stripe_status]
+    end
+  end
+
+  def self.down
+    drop_tables(:subscriptions, {:if_exists => true})
+  end
+end
