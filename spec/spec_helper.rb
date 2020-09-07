@@ -2,9 +2,6 @@
 
 ENV['RAILS_ENV'] ||= 'test'
 
-require 'coveralls'
-Coveralls.wear!
-
 require 'rails/all'
 require 'dummy/application'
 
