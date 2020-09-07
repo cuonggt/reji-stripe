@@ -315,7 +315,7 @@ describe 'subscriptions', type: :feature do
 
     # Create Subscription
     user.new_subscription('main', @plan_id)
-      .anchor_billing_cycle_on(Time.now.at_beginning_of_month.next_month.to_i)
+      .anchor_billing_cycle_on(Time.now.next_month.at_beginning_of_month.to_i)
       .create('pm_card_visa')
 
     subscription = user.subscription('main')
@@ -334,7 +334,7 @@ describe 'subscriptions', type: :feature do
     invoice_period = invoice.invoice_items.first.period
 
     expect(Time.at(invoice_period.start).strftime('%Y-%m-%d')).to eq(Time.now.strftime('%Y-%m-%d'))
-    expect(Time.at(invoice_period.end).strftime('%Y-%m-%d')).to eq(Time.now.at_beginning_of_month.next_month.strftime('%Y-%m-%d'))
+    expect(Time.at(invoice_period.end).strftime('%Y-%m-%d')).to eq(Time.now.next_month.at_beginning_of_month.strftime('%Y-%m-%d'))
   end
 
   it 'test_creating_subscription_with_trial' do

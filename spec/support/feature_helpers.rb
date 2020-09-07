@@ -15,6 +15,8 @@ module Reji
         'cashier-test-'
       end
 
+      sleep(2)
+
       protected
 
       def delete_stripe_resource(resource)
