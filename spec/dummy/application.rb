@@ -26,7 +26,6 @@ module Dummy
     config.paths['config/database'] = "#{APP_ROOT}/config/database.yml"
     config.paths['log'] = 'tmp/log/development.log'
 
-    config.paths.add 'db/schema.rb', with: "#{APP_ROOT}/db/schema.rb"
     config.paths.add 'config/routes.rb', with: "#{APP_ROOT}/config/routes.rb"
     config.secret_key_base = 'SECRET_KEY_BASE'
 
