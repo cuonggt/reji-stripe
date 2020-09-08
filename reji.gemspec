@@ -21,7 +21,10 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
   s.test_files = `git ls-files -- {spec}/*`.split("\n")
 
+  s.add_dependency 'stripe', '>= 5.0'
+  s.add_dependency 'money', '>= 6.0'
   s.add_dependency 'railties', '>= 5.0'
   s.add_dependency 'activerecord', '>= 5.0'
   s.add_dependency 'actionmailer', '>= 5.0'
+  s.add_development_dependency 'rspec-rails', '~> 3.8.2'
 end

@@ -12,4 +12,4 @@ if [ -z "$CI" ]; then
 fi
 
 # Set up database for the application that Reji tests against
-RAILS_ENV=test bundle exec rake dummy:db:reset
+# RAILS_ENV=test bundle exec rake dummy:db:reset
