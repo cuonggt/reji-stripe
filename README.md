@@ -51,45 +51,57 @@ The Reji install generator:
 
 Before using Reji, add the `Billable` concern to your model definition. This concern provides various methods to allow you to perform common billing tasks, such as creating subscriptions, applying coupons, and updating payment method information:
 
-    class User < ApplicationRecord
-      include Reji::Billable
-    end
+```ruby
+class User < ApplicationRecord
+  include Reji::Billable
+end
+```
 
-Reji assumes your Billable model will be the `User` class. If you wish to change this you can specify a different model in your `.env` file:
+Reji assumes your Billable model will be the `User` class. If you wish to change this you can specify a different model by setting the `REJI_MODEL` environment variable:
 
-    REJI_MODEL=User
+```sh
+REJI_MODEL=User
+```
 
 > If you're using a model other than `User` model, you'll need to publish and alter the [migrations](#installation) provided to match your alternative model's table name.
 
 <a name="api-keys"></a>
 ### API Keys
 
-Next, you should configure your Stripe keys in your environment variables. You can retrieve your Stripe API keys from the Stripe control panel.
+Next, you should configure your Stripe keys in your environment variables or `.env` file. You can retrieve your Stripe API keys from the Stripe control panel.
 
-    STRIPE_KEY=your-stripe-key
-    STRIPE_SECRET=your-stripe-secret
+```sh
+STRIPE_KEY=your-stripe-key
+STRIPE_SECRET=your-stripe-secret
+```
 
 <a name="currency-configuration"></a>
 ### Currency Configuration
 
 The default Reji currency is United States Dollars (USD). You can change the default currency by setting the `REJI_CURRENCY` environment variable:
 
-    REJI_CURRENCY=eur
+```sh
+REJI_CURRENCY=eur
+```
 
 <a name="stripe-sdk"></a>
 ## Stripe SDK
 
 Many of Reji's objects are wrappers around Stripe SDK objects. If you would like to interact with the Stripe objects directly, you may conveniently retrieve them using the `as_stripe` method:
 
-    stripe_subscription = subscription.as_stripe_subscription
+```ruby
+stripe_subscription = subscription.as_stripe_subscription
 
-    stripe_subscription.application_fee_percent = 5
+stripe_subscription.application_fee_percent = 5
 
-    stripe_subscription.save
+stripe_subscription.save
+```
 
 You may also use the `update_stripe_subscription` method to update the Stripe subscription directly:
 
-    subscription.update_stripe_subscription({:application_fee_percent => 5})
+```ruby
+subscription.update_stripe_subscription({:application_fee_percent => 5})
+```
 
 <a name="testing"></a>
 ## Testing
@@ -98,7 +110,9 @@ When testing an application that uses Reji, you may mock the actual HTTP request
 
 You will need to set the Stripe testing secret environment variable in order to run the Reji tests.
 
-    export STRIPE_SECRET=sk_test_<your-key>
+```shell
+STRIPE_SECRET=sk_test_<your-key> rake spec
+```
 
 Whenever you interact with Reji while testing, it will send actual API requests to your Stripe testing environment. For convenience, you should pre-fill your Stripe testing account with subscriptions / plans that you may then use during testing.
 

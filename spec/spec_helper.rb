@@ -14,7 +14,7 @@ Dummy::Application.initialize!
 ActiveRecord::Migration.maintain_test_schema!
 
 ActiveRecord::Schema.verbose = false
-load 'dummy/db/schema.rb'
+load 'spec/dummy/db/schema.rb'
 
 RSpec.configure do |config|
   config.use_transactional_fixtures = true

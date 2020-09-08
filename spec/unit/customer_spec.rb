@@ -29,7 +29,7 @@ describe 'customer', type: :unit do
     expect(user.has_default_payment_method).to be false
   end
 
-  it 'test_default_payment_method_returns_null_when_the_user_is_not_a_customer_yet' do
+  it 'test_default_payment_method_returns_nil_when_the_user_is_not_a_customer_yet' do
     user = User.new
 
     expect(user.default_payment_method).to be_nil

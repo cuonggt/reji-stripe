@@ -3,9 +3,7 @@
 require 'stripe'
 require 'money'
 
-# Version
-require 'reji/version'
-
+require 'reji/engine'
 require 'reji/configuration'
 
 require 'reji/concerns/manages_customer'

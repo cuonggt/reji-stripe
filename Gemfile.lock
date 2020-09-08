@@ -1,13 +1,10 @@
 PATH
   remote: .
   specs:
-    reji (0.2.6)
+    reji (0.3.3)
       actionmailer (>= 5.0)
-      activemodel (>= 5.0)
       activerecord (>= 5.0)
-      money (>= 6.0)
       railties (>= 5.0)
-      stripe (>= 5.0)
 
 GEM
   remote: https://rubygems.org/
