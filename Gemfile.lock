@@ -119,12 +119,10 @@ PLATFORMS
 
 DEPENDENCIES
   appraisal
-  money
   pry
   reji!
-  rspec-rails
-  sqlite3
-  stripe
+  rspec-rails (~> 4.0.1)
+  sqlite3 (~> 1.4.2)
 
 BUNDLED WITH
    2.1.4

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Reji
   class PaymentController < ActionController::Base
     def show
