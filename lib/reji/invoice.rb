@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'wicked_pdf'
+
 module Reji
   class Invoice
     def initialize(owner, invoice)
@@ -156,6 +158,35 @@ module Reji
       @items
         .select { |item| item.type == type }
         .map { |item| InvoiceLineItem.new(self, item) }
+    end
+
+    # Get the View instance for the invoice.
+    def view(data)
+      ActionController::Base.new.render_to_string(
+        template: 'receipt',
+        locals: data.merge({
+          invoice: self,
+          owner: self.owner,
+          user: self.owner,
+        })
+      )
+    end
+
+    # Capture the invoice as a PDF and return the raw bytes.
+    def pdf(data)
+      WickedPdf.new.pdf_from_string(self.view(data))
+    end
+
+    # Create an invoice download response.
+    def download(data)
+      filename = "#{data[:product]}_#{self.date.month}_#{self.date.year}"
+
+      self.download_as(filename, data)
+    end
+
+    # Create an invoice download response with a specific filename.
+    def download_as(filename, data)
+      {:data => self.pdf(data), :filename => filename}
     end
 
     # Void the Stripe invoice.

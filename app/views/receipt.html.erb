@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Invoice</title>
+
+  <style>
+    body {
+      background: #fff none;
+      font-size: 12px;
+    }
+
+    h2 {
+      font-size: 28px;
+      color: #ccc;
+    }
+
+    .container {
+      padding-top: 30px;
+    }
+
+    .invoice-head td {
+      padding: 0 8px;
+    }
+
+    .table th {
+      vertical-align: bottom;
+      font-weight: bold;
+      padding: 8px;
+      line-height: 20px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .table tr.row td {
+      border-bottom: 1px solid #ddd;
+    }
+
+    .table td {
+      padding: 8px;
+      line-height: 20px;
+      text-align: left;
+      vertical-align: top;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <table style="margin-left: auto; margin-right: auto;" width="550">
+    <tr>
+      <td width="160">
+        &nbsp;
+      </td>
+
+      <!-- Organization Name / Image -->
+      <td align="right">
+        <strong><%= local_assigns[:header] ? header : vendor %></strong>
+      </td>
+    </tr>
+
+    <tr valign="top">
+      <td style="font-size: 28px; color: #ccc;">
+        Receipt
+      </td>
+
+      <!-- Organization Name / Date -->
+      <td>
+        <br><br>
+        <strong>To:</strong> <%= owner.stripe_email ? owner.stripe_email : owner.name %>
+        <br>
+        <strong>Date:</strong> <%= invoice.date %>
+      </td>
+    </tr>
+
+    <tr valign="top">
+      <!-- Organization Details -->
+      <td style="font-size:9px;">
+        <%= vendor %><br>
+
+        <% if local_assigns[:street] %>
+          <%= street %><br>
+        <% end %>
+
+        <% if local_assigns[:location] %>
+          <%= location %><br>
+        <% end %>
+
+        <% if local_assigns[:phone] %>
+          <strong>T</strong> <%= phone %><br>
+        <% end %>
+
+        <% if local_assigns[:vendor_vat] %>
+          <%= vendor_vat %><br>
+        <% end %>
+
+        <% if local_assigns[:url] %>
+          <a href="<%= url %>"><%= url %></a>
+        <% end %>
+      </td>
+      <td>
+        <!-- Invoice Info -->
+        <p>
+          <strong>Product:</strong> <%= product %><br>
+          <strong>Invoice Number:</strong> <%= local_assigns[:id] ? id : invoice.number %><br>
+        </p>
+
+        <% if local_assigns[:vat] %>
+          <p><%= vat %></p>
+        <% end %>
+
+        <br><br>
+
+        <!-- Invoice Table -->
+        <table width="100%" class="table" border="0">
+          <tr>
+            <th align="left">Description</th>
+            <th align="right">Date</th>
+
+            <% if invoice.has_tax %>
+                <th align="right">Tax</th>
+            <% end %>
+
+            <th align="right">Amount</th>
+          </tr>
+
+          <!-- Display The Invoice Items -->
+          <% invoice.invoice_items.each do |item| %>
+            <tr class="row">
+              <td colspan="2"><%= item.description %></td>
+              <% if invoice.has_tax %>
+              <td>
+                <% if item.inclusive_tax_percentage > 0 %>
+                  <%= item.inclusive_tax_percentage %>% incl.
+                <% end %>
+
+                <% if item.has_both_inclusive_and_exclusive_tax > 0 %>
+                  +
+                <% end %>
+
+                <% if item.exclusive_tax_percentage > 0 %>
+                  <%= item.exclusive_tax_percentage %>%
+                <% end %>
+              </td>
+              <% end %>
+              <td><%= item.total %></td>
+            </tr>
+          <% end %>
+
+          <!-- Display The Subscriptions -->
+          <% invoice.subscriptions.each do |subscription| %>
+            <tr class="row">
+              <td>Subscription <%= subscription.quantity %></td>
+              <td>
+                <%= subscription.start_date %>
+                <%= subscription.end_date %>
+              </td>
+              <% if invoice.has_tax %>
+              <td>
+                <% if subscription.inclusive_tax_percentage > 0 %>
+                  <%= subscription.inclusive_tax_percentage %>% incl.
+                <% end %>
+
+                <% if subscription.has_both_inclusive_and_exclusive_tax > 0 %>
+                  +
+                <% end %>
+
+                <% if subscription.exclusive_tax_percentage > 0 %>
+                  <%= subscription.exclusive_tax_percentage %>%
+                <% end %>
+              </td>
+              <% end %>
+              <td><%= subscription.total %></td>
+            </tr>
+          <% end %>
+
+          <!-- Display The Subtotal -->
+          <% if invoice.has_discount || invoice.has_tax || invoice.has_starting_balance %>
+            <tr>
+              <td colspan="<%= invoice.has_tax ? 3 : 2 %>" style="text-align: right;">Subtotal</td>
+              <td><%= invoice.subtotal %></td>
+            </tr>
+          <% end %>
+
+          <!-- Display The Discount -->
+          <% if invoice.has_discount %>
+            <tr>
+              <td colspan="<%= invoice.has_tax ? 3 : 2 %>" style="text-align: right;">
+                <% if invoice.discount_is_percentage %>
+                  <%= invoice.coupon %> (<%= invoice.percent_off %>% Off)
+                <% else %>
+                  <%= invoice.coupon %> (<%= invoice.amount_off %> Off)
+                <% end %>
+              </td>
+
+              <td>-<%= invoice.discount %></td>
+            </tr>
+          <% end %>
+
+          <!-- Display The Taxes -->
+          <% unless invoice.is_not_tax_exempt %>
+            <tr>
+              <td colspan="<%= invoice.has_tax ? 3 : 2 %>" style="text-align: right;">
+                <% if invoice.is_tax_exempt %>
+                  Tax is exempted
+                <% else %>
+                  Tax to be paid on reverse charge basis
+                <% end %>
+              </td>
+              <td></td>
+            </tr>
+          <% else %>
+            <% invoice.taxes.each do |tax| %>
+              <tr>
+                <td colspan="3" style="text-align: right;">
+                  <%= tax.display_name %> <%= tax.jurisdiction ? ' - '.tax.jurisdiction : '' %>
+                  (<%= tax.percentage %>%<%= tax.is_inclusive ? ' incl.' : '' %>)
+                </td>
+                <td><%= tax.amount %></td>
+              </tr>
+            <% end %>
+          <% end %>
+
+          <!-- Starting Balance -->
+          <% if invoice.has_starting_balance %>
+            <tr>
+              <td colspan="<%= invoice.has_tax ? 3 : 2 %>" style="text-align: right;">
+                Customer Balance
+              </td>
+              <td><%= invoice.starting_balance %></td>
+            </tr>
+          <% end %>
+
+          <!-- Display The Final Total -->
+          <tr>
+            <td colspan="<%= invoice.has_tax ? 3 : 2 %>" style="text-align: right;">
+              <strong>Total</strong>
+            </td>
+            <td>
+              <strong><%= invoice.total %></strong>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>

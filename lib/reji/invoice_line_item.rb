@@ -14,7 +14,7 @@ module Reji
 
     # Determine if the line item has both inclusive and exclusive tax.
     def has_both_inclusive_and_exclusive_tax
-      self.inclusive_tax_percentage && self.exclusive_tax_percentage
+      self.inclusive_tax_percentage > 0 && self.exclusive_tax_percentage > 0
     end
 
     # Get the total percentage of the default inclusive tax for the invoice line item.

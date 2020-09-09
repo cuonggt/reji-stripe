@@ -94,6 +94,13 @@ module Reji
       invoice
     end
 
+    # Create an invoice download response.
+    def download_invoice(id, data, filename = nil)
+      invoice = self.find_invoice_or_fail(id)
+
+      filename ? invoice.download_as(filename, data) : invoice.download(data)
+    end
+
     # Get a collection of the entity's invoices.
     def invoices(include_pending = false, parameters = {})
       return [] unless self.has_stripe_id
