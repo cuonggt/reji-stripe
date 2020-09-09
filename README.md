@@ -1043,6 +1043,8 @@ To ensure your application can handle Stripe webhooks, be sure to configure the 
 - `customer.updated`
 - `customer.deleted`
 
+> Make sure you protect incoming requests with Reji's included [webhook signature verification](#verifying-webhook-signatures).
+
 <a name="defining-webhook-event-handlers"></a>
 ### Defining Webhook Event Handlers
 
