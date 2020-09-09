@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'invoice', type: :unit do
+describe 'invoice' do
   it 'can_return_the_invoice_date' do
     stripe_invoice = Stripe::Invoice.new
     stripe_invoice.customer = 'foo'

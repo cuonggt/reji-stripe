@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'payment', type: :unit do
+describe 'payment' do
   it 'can_return_its_requires_payment_method_status' do
     payment_intent = Stripe::PaymentIntent.new
     payment_intent.status = 'requires_payment_method'

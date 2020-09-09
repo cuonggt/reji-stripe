@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe 'customer', type: :unit do
-  it 'test_customer_can_be_put_on_a_generic_trial' do
+  it 'can_be_put_on_a_generic_trial' do
     user = User.new
 
     expect(user.on_generic_trial).to be false
@@ -17,7 +17,7 @@ describe 'customer', type: :unit do
     expect(user.on_generic_trial).to be false
   end
 
-  it 'test_we_can_determine_if_it_has_a_payment_method' do
+  it 'can_determine_if_the_user_has_a_default_payment_method' do
     user = User.new
 
     user.card_brand = 'visa'
@@ -29,13 +29,13 @@ describe 'customer', type: :unit do
     expect(user.has_default_payment_method).to be false
   end
 
-  it 'test_default_payment_method_returns_nil_when_the_user_is_not_a_customer_yet' do
+  it 'returns_nil_default_payment_method_when_the_user_is_not_a_customer_yet' do
     user = User.new
 
     expect(user.default_payment_method).to be_nil
   end
 
-  it 'test_stripe_customer_method_throws_exception_when_stripe_id_is_not_set' do
+  it 'cannot_return_stripe_customer_when_stripe_id_is_not_set' do
     user = User.new
 
     expect {
@@ -43,7 +43,7 @@ describe 'customer', type: :unit do
     }.to raise_error(Reji::InvalidCustomerError)
   end
 
-  it 'test_stripe_customer_cannot_be_created_when_stripe_id_is_already_set' do
+  it 'cannot_create_stripe_customer_when_stripe_id_is_already_set' do
     user = User.new
     user.stripe_id = 'foo'
 

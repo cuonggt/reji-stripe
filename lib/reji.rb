@@ -32,10 +32,6 @@ module Reji
   # Indicates if Reji will mark past due subscriptions as inactive.
   @@deactivate_past_due = true
 
-  class << self
-    attr_accessor :deactivate_past_due
-  end
-
   # Get the billable entity instance by Stripe ID.
   def self.find_billable(stripe_id)
     return if stripe_id.nil?
@@ -69,6 +65,10 @@ module Reji
     @@deactivate_past_due = false
 
     self
+  end
+
+  def self.deactivate_past_due
+    @@deactivate_past_due
   end
 end
 

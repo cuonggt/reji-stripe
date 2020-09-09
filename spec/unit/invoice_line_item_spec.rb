@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Reji::InvoiceLineItem, type: :unit do
+describe 'invoice line item' do
   it 'can_calculate_the_inclusive_tax_percentage' do
     customer = User.new
     customer.stripe_id = 'foo'
