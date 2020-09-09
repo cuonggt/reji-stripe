@@ -7,11 +7,11 @@ module Reji
     def show
       @stripe_key = Reji.configuration.key
 
-      # @payment = Reji::Payment.new(
-      #   Stripe::PaymentIntent.retrieve(
-      #     params[:id], Reji.stripe_options
-      #   )
-      # )
+      @payment = Reji::Payment.new(
+        Stripe::PaymentIntent.retrieve(
+          params[:id], Reji.stripe_options
+        )
+      )
 
       @redirect = params[:redirect]
 

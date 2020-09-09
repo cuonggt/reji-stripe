@@ -10,6 +10,3 @@ bundle check || bundle install
 if [ -z "$CI" ]; then
   bundle exec appraisal install
 fi
-
-# Set up database for the application that Reji tests against
-# RAILS_ENV=test bundle exec rake dummy:db:reset
