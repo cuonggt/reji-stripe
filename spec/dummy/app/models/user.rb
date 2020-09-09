@@ -4,7 +4,7 @@ class User < ActiveRecord::Base
   include Reji::Billable
 
   def tax_rates
-    @tax_rates || {}
+    @tax_rates || []
   end
 
   def plan_tax_rates

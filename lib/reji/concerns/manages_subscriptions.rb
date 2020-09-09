@@ -80,7 +80,7 @@ module Reji
 
     # Get the tax rates to apply to the subscription.
     def tax_rates
-      {}
+      []
     end
 
     # Get the tax rates to apply to individual subscription items.

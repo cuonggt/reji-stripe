@@ -846,9 +846,9 @@ The `tax_rates` method enables you to apply a tax rate on a model-by-model basis
 
 ```ruby
 def plan_tax_rates
-  [
+  {
     'plan-id' => ['tax-rate-id'],
-  ]
+  }
 end
 ```
 

@@ -472,8 +472,8 @@ module Reji
     def get_plan_tax_rates_for_payload(plan)
       tax_rates = self.user.plan_tax_rates
 
-      if tax_rates
-        tax_rates.key?(plan) ? tax_rates[plan] : nil
+      unless tax_rates.empty?
+        tax_rates[plan] || nil
       end
     end
 
