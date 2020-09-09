@@ -86,7 +86,7 @@ module Reji
       begin
         invoice = self.find_invoice(id)
       rescue InvalidInvoiceError => e
-        raise e
+        raise Reji::AccessDeniedHttpError.new(e.message)
       end
 
       raise ActiveRecord::RecordNotFound if invoice.nil?

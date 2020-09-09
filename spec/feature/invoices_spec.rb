@@ -68,6 +68,6 @@ describe 'invoices', type: :request do
 
     expect {
       other_user.find_invoice_or_fail(invoice.id)
-    }.to raise_error(Reji::InvalidInvoiceError)
+    }.to raise_error(Reji::AccessDeniedHttpError)
   end
 end
