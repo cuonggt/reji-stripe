@@ -1043,8 +1043,6 @@ To ensure your application can handle Stripe webhooks, be sure to configure the 
 - `customer.updated`
 - `customer.deleted`
 
-> Make sure you protect incoming requests with Reji's included [webhook signature verification](/docs/{{version}}/billing#verifying-webhook-signatures) middleware.
-
 <a name="defining-webhook-event-handlers"></a>
 ### Defining Webhook Event Handlers
 
@@ -1072,7 +1070,7 @@ What if a customer's credit card expires? No worries - Reji's Webhook controller
 <a name="verifying-webhook-signatures"></a>
 ### Verifying Webhook Signatures
 
-To secure your webhooks, you may use [Stripe's webhook signatures](https://stripe.com/docs/webhooks/signatures). For convenience, Reji automatically includes a middleware which validates that the incoming Stripe webhook request is valid.
+To secure your webhooks, you may use [Stripe's webhook signatures](https://stripe.com/docs/webhooks/signatures). For convenience, Reji automatically includes a filter which validates that the incoming Stripe webhook request is valid.
 
 To enable webhook verification, ensure that the `STRIPE_WEBHOOK_SECRET` environment variable is set. The webhook `secret` may be retrieved from your Stripe account dashboard.
 
