@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'subscriptions', type: :feature do
+describe 'subscriptions', type: :request do
   before(:all) do
     @product_id = "#{stripe_prefix}product-1-#{SecureRandom.hex(5)}"
     @plan_id = "#{stripe_prefix}monthly-10-#{SecureRandom.hex(5)}"
@@ -616,7 +616,7 @@ describe 'subscriptions', type: :feature do
       user.new_subscription('main', @plan_id).create('pm_card_threeDSecure2Required')
 
       raise RSpec::Expectations::ExpectationNotMetError.new('Expected exception PaymentActionRequiredError was not thrown.')
-    rescue Reji::PaymentActionRequiredError => exception
+    rescue Reji::PaymentActionRequiredError => e
       subscription = user.subscription('main')
 
       payment = subscription.latest_payment

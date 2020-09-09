@@ -21,5 +21,7 @@ RSpec.configure do |config|
 
   config.infer_spec_type_from_file_location!
 
-  config.include Reji::Test::FeatureHelpers, type: :feature
+  %i(request).each do |type|
+    config.include(Reji::Test::FeatureHelpers, type: type)
+  end
 end

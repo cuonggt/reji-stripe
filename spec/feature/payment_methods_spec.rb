@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'payment_methods', type: :feature do
+describe 'payment_methods', type: :request do
   it 'can_start_a_new_setup_intent_session' do
     user = create_customer('we_can_start_a_new_setup_intent_session')
     setup_intent = user.create_setup_intent

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'multiplan subscriptions', type: :feature do
+describe 'multiplan subscriptions', type: :request do
   before(:all) do
     @product_id = "#{stripe_prefix}product-1-#{SecureRandom.hex(5)}"
     @plan_id = "#{stripe_prefix}monthly-10-#{SecureRandom.hex(5)}"

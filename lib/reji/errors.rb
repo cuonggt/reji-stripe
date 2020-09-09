@@ -60,4 +60,7 @@ module Reji
       self.new("The plan on subscription \"#{subscription.stripe_id}\" cannot be removed because it is the last one.")
     end
   end
+
+  class AccessDeniedHttpError < StandardError
+  end
 end

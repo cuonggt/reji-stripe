@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'customer', type: :feature do
+describe 'customer', type: :request do
   it 'test_customers_in_stripe_can_be_updated' do
     user = create_customer('customers_in_stripe_can_be_updated')
     user.create_as_stripe_customer

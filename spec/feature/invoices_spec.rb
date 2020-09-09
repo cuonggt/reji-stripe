@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'invoices', type: :feature do
+describe 'invoices', type: :request do
   it 'test_require_stripe_customer_for_invoicing' do
     user = create_customer('require_stripe_customer_for_invoicing')
 
