@@ -42,7 +42,7 @@
           <p class="mb-6">
             This payment was already successfully confirmed.
           </p>
-        <% elsif @payment.is_cancelleed %>
+        <% elsif @payment.cancelled? %>
           <h1 class="text-xl mt-2 mb-4 text-gray-700">
             Payment Cancelled
           </h1>
@@ -126,7 +126,7 @@
         errorMessage: ''
       },
 
-      <% if ! @payment.succeeded? && ! @payment.is_cancelleed && ! @payment.requires_action %>
+      <% if ! @payment.succeeded? && ! @payment.cancelled? && ! @payment.requires_action %>
       mounted: function () {
         this.configureStripe();
       },
