@@ -17,5 +17,11 @@ RSpec::Core::RakeTask.new('spec') do |task|
   task.verbose = false
 end
 
-desc 'Run the specs and acceptance tests'
-task default: %w(spec)
+require 'rubocop/rake_task'
+
+RuboCop::RakeTask.new do |task|
+  task.requires << 'rubocop-rails'
+end
+
+desc 'Run the specs and rubocop'
+task default: %i[spec rubocop]

@@ -1,0 +1,70 @@
+require: rubocop-rails
+
+AllCops:
+  DisplayCopNames: true
+  TargetRubyVersion: 2.4
+
+Layout/EmptyComment:
+  Enabled: false
+
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/LineLength:
+  Exclude:
+    - "spec/**/*.rb"
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Lint/UselessAssignment:
+  Exclude:
+    - "spec/**/*.rb"
+
+Lint/SuppressedException:
+  Exclude:
+    - "spec/**/*.rb"
+
+Metrics/BlockLength:
+  Max: 40
+  Exclude:
+    # `context` in tests are blocks and get quite large, so exclude the test
+    # directory from having to adhere to this rule.
+    - "spec/**/*.rb"
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/ClassLength:
+  Max: 400
+  Exclude:
+    # Test classes get quite large, so exclude the test directory from having
+    # to adhere to this rule.
+    - "spec/**/*.rb"
+
+Metrics/MethodLength:
+  Max: 30
+
+Metrics/ModuleLength:
+  Max: 200
+
+Naming/AccessorMethodName:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/MultilineTernaryOperator:
+  Enabled: false
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Rails/ApplicationRecord:
+  Enabled: false
+
+Rails/ReflectionClassName:
+  Enabled: false
