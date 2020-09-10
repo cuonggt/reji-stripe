@@ -1,5 +1,8 @@
 # Rails Reji
 
+[![Build Status](https://travis-ci.org/cuonggt/reji-stripe.svg?branch=master)](https://travis-ci.org/cuonggt/reji-stripe)
+[![Gem Version](https://badge.fury.io/rb/reji.svg)](https://badge.fury.io/rb/reji)
+
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Configuration](#configuration)
