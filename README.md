@@ -95,6 +95,29 @@ rails db:migrate
 <a name="configuration"></a>
 ## Configuration
 
+All Reji configuration can be found in `config/initializers/reji.rb` file. You can change directly or update corresponding environment variables.
+
+```ruby
+Reji.configure do |config|
+  # Stripe Keys
+  config.key = ENV['STRIPE_KEY']
+  config.secret = ENV['STRIPE_SECRET']
+  
+  # Stripe Webhooks
+  config.webhook = {
+    secret: ENV['STRIPE_WEBHOOK_SECRET'],
+    tolerance: ENV['STRIPE_WEBHOOK_TOLERANCE'] || 300,
+  }
+  
+  # Reji Model
+  config.model = ENV['REJI_MODEL'] || 'User'
+  config.model_id = ENV['REJI_MODEL_ID'] || 'user_id'
+  
+  # Currency
+  config.currency = ENV['REJI_CURRENCY'] || 'usd'
+end
+```
+
 <a name="billable-model"></a>
 ### Billable Model
 
@@ -110,6 +133,7 @@ Reji assumes your Billable model will be the `User` class. If you wish to change
 
 ```sh
 REJI_MODEL=User
+REJI_MODEL_ID=user_id
 ```
 
 > If you're using a model other than `User` model, you'll need to publish and alter the [migrations](#installation) provided to match your alternative model's table name.
