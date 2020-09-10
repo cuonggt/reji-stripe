@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'stripe', '>= 5.0'
   s.add_dependency 'wicked_pdf'
   s.add_dependency 'wkhtmltopdf-binary'
+  s.add_development_dependency 'appraisal'
   s.add_development_dependency 'rspec-rails', '~> 4.0.1'
   s.add_development_dependency 'sqlite3', '~> 1.4.2'
 end
