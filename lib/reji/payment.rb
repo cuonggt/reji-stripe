@@ -8,7 +8,7 @@ module Reji
 
     # Get the total amount that will be paid.
     def amount
-      Reji.format_amount(self.raw_amount, @payment_intent.currency)
+      Reji.format_amount(raw_amount, @payment_intent.currency)
     end
 
     # Get the raw total amount that will be paid.
@@ -32,20 +32,20 @@ module Reji
     end
 
     # Determine if the payment was cancelled.
-    def is_cancelled
+    def cancelled?
       @payment_intent.status == 'canceled'
     end
 
     # Determine if the payment was successful.
-    def is_succeeded
+    def succeeded?
       @payment_intent.status == 'succeeded'
     end
 
     # Validate if the payment intent was successful and throw an exception if not.
     def validate
-      raise Reji::PaymentFailureError::invalid_payment_method(self) if self.requires_payment_method
+      raise Reji::PaymentFailureError.invalid_payment_method(self) if requires_payment_method
 
-      raise Reji::PaymentActionRequiredError::incomplete(self) if self.requires_action
+      raise Reji::PaymentActionRequiredError.incomplete(self) if requires_action
     end
 
     # The Stripe PaymentIntent instance.
@@ -56,6 +56,10 @@ module Reji
     # Dynamically get values from the Stripe PaymentIntent.
     def method_missing(key)
       @payment_intent[key]
+    end
+
+    def respond_to_missing?(method_name, include_private = false)
+      super
     end
   end
 end

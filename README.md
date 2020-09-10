@@ -380,18 +380,18 @@ payment_method = user.find_payment_method(payment_method_id)
 <a name="check-for-a-payment-method"></a>
 ### Determining If A User Has A Payment Method
 
-To determine if a Billable model has a default payment method attached to their account, use the `has_default_payment_method` method:
+To determine if a Billable model has a default payment method attached to their account, use the `default_payment_method?` method:
 
 ```ruby
-if user.has_default_payment_method
+if user.default_payment_method?
   #
 end
 ```
 
-To determine if a Billable model has at least one payment method attached to their account, use the `has_payment_method` method:
+To determine if a Billable model has at least one payment method attached to their account, use the `payment_method?` method:
 
 ```ruby
-if user.has_payment_method
+if user.payment_method?
   #
 end
 ```
@@ -605,14 +605,14 @@ Reji::Subscription.recurring
 
 If a subscription requires a secondary payment action after creation the subscription will be marked as `incomplete`. Subscription statuses are stored in the `stripe_status` column of Reji's `subscriptions` database table.
 
-Similarly, if a secondary payment action is required when swapping plans the subscription will be marked as `past_due`. When your subscription is in either of these states it will not be active until the customer has confirmed their payment. Checking if a subscription has an incomplete payment can be done using the `has_incomplete_payment` method on the Billable model or a subscription instance:
+Similarly, if a secondary payment action is required when swapping plans the subscription will be marked as `past_due`. When your subscription is in either of these states it will not be active until the customer has confirmed their payment. Checking if a subscription has an incomplete payment can be done using the `incomplete_payment?` method on the Billable model or a subscription instance:
 
 ```ruby
-if user.has_incomplete_payment('default')
+if user.incomplete_payment?('default')
   #
 end
 
-if user.subscription('default').has_incomplete_payment
+if user.subscription('default').incomplete_payment?
   #
 end
 ```
@@ -866,12 +866,12 @@ This will also sync any subscription item tax rates so make sure you also proper
 
 #### Tax Exemption
 
-Reji also offers methods to determine if the customer is tax exempt by calling the Stripe API. The `is_not_tax_exempt`, `is_tax_exempt`, and `reverse_charge_applies` methods are available on the billable model:
+Reji also offers methods to determine if the customer is tax exempt by calling the Stripe API. The `not_tax_exempt?`, `tax_exempt?`, and `reverse_charge_applies` methods are available on the billable model:
 
 ```ruby
 user = User.find(1)
-user.is_tax_exempt
-user.is_not_tax_exempt
+user.tax_exempt?
+user.not_tax_exempt?
 user.reverse_charge_applies
 ```
 
@@ -885,7 +885,7 @@ By default, the billing cycle anchor is the date the subscription was created, o
 ```ruby
 user = User.find(1)
 
-anchor = Time.now.at_beginning_of_month.next_month
+anchor = Time.current.at_beginning_of_month.next_month
 
 user.new_subscription('default', 'price_premium')
   .anchor_billing_cycle_on(anchor.to_i)
@@ -953,7 +953,7 @@ The `trial_until` method allows you to provide a `Time` instance to specify when
 
 ```ruby
 user.new_subscription('default', 'price_monthly')
-  .trial_until(Time.now + 10.days)
+  .trial_until(Time.current + 10.days)
   .create(payment_method)
 ```
 
@@ -981,7 +981,7 @@ If you would like to offer trial periods without collecting the user's payment m
 ```ruby
 user = User.create({
   # Populate other user properties...
-  :trial_ends_at => Time.now + 10.days,
+  :trial_ends_at => Time.current + 10.days,
 })
 ```
 
@@ -1016,12 +1016,12 @@ The `extend_trial` method allows you to extend the trial period of a subscriptio
 ```ruby
 # End the trial 7 days from now...
 subscription.extend_trial(
-  Time.now + 7.days
+  Time.current + 7.days
 )
 
 # Add an additional 5 days to the trial...
 subscription.extend_trial(
-  Time.at(subscription.trial_ends_at) + 5.days
+  Time.zone.at(subscription.trial_ends_at) + 5.days
 )
 ```
 

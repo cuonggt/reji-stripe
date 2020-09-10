@@ -30,7 +30,7 @@ module Reji
   STRIPE_VERSION = '2020-08-27'
 
   # Indicates if Reji will mark past due subscriptions as inactive.
-  @@deactivate_past_due = true
+  @deactivate_past_due = true
 
   # Get the billable entity instance by Stripe ID.
   def self.find_billable(stripe_id)
@@ -43,8 +43,8 @@ module Reji
   # Get the default Stripe API options.
   def self.stripe_options(options = {})
     {
-      :api_key => Reji.configuration.secret,
-      :stripe_version => Reji::STRIPE_VERSION,
+      api_key: Reji.configuration.secret,
+      stripe_version: Reji::STRIPE_VERSION,
     }.merge(options)
   end
 
@@ -62,17 +62,17 @@ module Reji
 
   # Configure to maintain past due subscriptions as active.
   def self.keep_past_due_subscriptions_active
-    @@deactivate_past_due = false
+    @deactivate_past_due = false
 
     self
   end
 
   def self.deactivate_past_due=(value)
-    @@deactivate_past_due = value
+    @deactivate_past_due = value
   end
 
   def self.deactivate_past_due
-    @@deactivate_past_due
+    @deactivate_past_due
   end
 end
 

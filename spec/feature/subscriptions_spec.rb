@@ -11,55 +11,55 @@ describe 'subscriptions', type: :request do
     @coupon_id = "#{stripe_prefix}coupon-#{SecureRandom.hex(5)}"
 
     Stripe::Product.create({
-      :id => @product_id,
-      :name => 'Rails Reji Test Product',
-      :type => 'service',
+      id: @product_id,
+      name: 'Rails Reji Test Product',
+      type: 'service',
     })
 
     Stripe::Plan.create({
-      :id => @plan_id,
-      :nickname => 'Monthly $10',
-      :currency => 'USD',
-      :interval => 'month',
-      :billing_scheme => 'per_unit',
-      :amount => 1000,
-      :product => @product_id,
+      id: @plan_id,
+      nickname: 'Monthly $10',
+      currency: 'USD',
+      interval: 'month',
+      billing_scheme: 'per_unit',
+      amount: 1000,
+      product: @product_id,
     })
 
     Stripe::Plan.create({
-      :id => @other_plan_id,
-      :nickname => 'Monthly $10 Other',
-      :currency => 'USD',
-      :interval => 'month',
-      :billing_scheme => 'per_unit',
-      :amount => 1000,
-      :product => @product_id,
+      id: @other_plan_id,
+      nickname: 'Monthly $10 Other',
+      currency: 'USD',
+      interval: 'month',
+      billing_scheme: 'per_unit',
+      amount: 1000,
+      product: @product_id,
     })
 
     Stripe::Plan.create({
-      :id => @premium_plan_id,
-      :nickname => 'Monthly $20 Premium',
-      :currency => 'USD',
-      :interval => 'month',
-      :billing_scheme => 'per_unit',
-      :amount => 2000,
-      :product => @product_id,
+      id: @premium_plan_id,
+      nickname: 'Monthly $20 Premium',
+      currency: 'USD',
+      interval: 'month',
+      billing_scheme: 'per_unit',
+      amount: 2000,
+      product: @product_id,
     })
 
     Stripe::Coupon.create({
-      :id => @coupon_id,
-      :duration => 'repeating',
-      :amount_off => 500,
-      :duration_in_months => 3,
-      :currency => 'USD',
+      id: @coupon_id,
+      duration: 'repeating',
+      amount_off: 500,
+      duration_in_months: 3,
+      currency: 'USD',
     })
 
     @tax_rate_id = Stripe::TaxRate.create({
-      :display_name => 'VAT',
-      :description => 'VAT Belgium',
-      :jurisdiction => 'BE',
-      :percentage => 21,
-      :inclusive => false,
+      display_name: 'VAT',
+      description: 'VAT Belgium',
+      jurisdiction: 'BE',
+      percentage: 21,
+      inclusive: false,
     }).id
   end
 
@@ -104,7 +104,7 @@ describe 'subscriptions', type: :request do
 
     # Modify Ends Date To Past
     old_grace_period = subscription.ends_at
-    subscription.update({:ends_at => Time.now - 5.days})
+    subscription.update({ ends_at: Time.current - 5.days })
 
     expect(subscription.active).to be false
     expect(subscription.cancelled).to be true
@@ -112,7 +112,7 @@ describe 'subscriptions', type: :request do
     expect(subscription.recurring).to be false
     expect(subscription.ended).to be true
 
-    subscription.update({:ends_at => old_grace_period})
+    subscription.update({ ends_at: old_grace_period })
 
     # Resume Subscription
     subscription.resume
@@ -141,8 +141,8 @@ describe 'subscriptions', type: :request do
     invoice = user.invoices.last
 
     expect(invoice.total).to eq('$10.00')
-    expect(invoice.has_discount).to be false
-    expect(invoice.has_starting_balance).to be false
+    expect(invoice.discount?).to be false
+    expect(invoice.starting_balance?).to be false
     expect(invoice.coupon).to be_nil
   end
 
@@ -151,7 +151,7 @@ describe 'subscriptions', type: :request do
     user.new_subscription('main', @plan_id).create('pm_card_visa')
     subscription = user.subscription('main')
 
-    subscription.swap(@other_plan_id, {:coupon => @coupon_id})
+    subscription.swap(@other_plan_id, { coupon: @coupon_id })
 
     expect(subscription.as_stripe_subscription.discount.coupon.id).to eq(@coupon_id)
   end
@@ -162,7 +162,7 @@ describe 'subscriptions', type: :request do
     begin
       user.new_subscription('main', @plan_id).create('pm_card_chargeCustomerFail')
 
-      raise RSpec::Expectations::ExpectationNotMetError.new('Expected exception PaymentFailureError was not thrown.')
+      raise RSpec::Expectations::ExpectationNotMetError, 'Expected exception PaymentFailureError was not thrown.'
     rescue Reji::PaymentFailureError => e
       # Assert that the payment needs a valid payment method.
       expect(e.payment.requires_payment_method).to be true
@@ -182,7 +182,7 @@ describe 'subscriptions', type: :request do
     begin
       user.new_subscription('main', @plan_id).create('pm_card_threeDSecure2Required')
 
-      raise RSpec::Expectations::ExpectationNotMetError.new('Expected exception PaymentActionRequiredError was not thrown.')
+      raise RSpec::Expectations::ExpectationNotMetError, 'Expected exception PaymentActionRequiredError was not thrown.'
     rescue Reji::PaymentActionRequiredError => e
       # Assert that the payment needs an extra action.
       expect(e.payment.requires_action).to be true
@@ -208,7 +208,7 @@ describe 'subscriptions', type: :request do
       # Attempt to swap and pay with a faulty card.
       subscription = subscription.swap_and_invoice(@premium_plan_id)
 
-      raise RSpec::Expectations::ExpectationNotMetError.new('Expected exception PaymentFailureError was not thrown.')
+      raise RSpec::Expectations::ExpectationNotMetError, 'Expected exception PaymentFailureError was not thrown.'
     rescue Reji::PaymentFailureError => e
       # Assert that the payment needs a valid payment method.
       expect(e.payment.requires_payment_method).to be true
@@ -233,7 +233,7 @@ describe 'subscriptions', type: :request do
       # Attempt to swap and pay with a faulty card.
       subscription = subscription.swap_and_invoice(@premium_plan_id)
 
-      raise RSpec::Expectations::ExpectationNotMetError.new('Expected exception PaymentActionRequiredError was not thrown.')
+      raise RSpec::Expectations::ExpectationNotMetError, 'Expected exception PaymentActionRequiredError was not thrown.'
     rescue Reji::PaymentActionRequiredError => e
       # Assert that the payment needs an extra action.
       expect(e.payment.requires_action).to be true
@@ -304,7 +304,7 @@ describe 'subscriptions', type: :request do
     # Invoice Tests
     invoice = user.invoices.first
 
-    expect(invoice.has_discount).to be true
+    expect(invoice.discount?).to be true
     expect(invoice.total).to eq('$5.00')
     expect(invoice.amount_off).to eq('$5.00')
     expect(invoice.discount_is_percentage).to be false
@@ -315,7 +315,7 @@ describe 'subscriptions', type: :request do
 
     # Create Subscription
     user.new_subscription('main', @plan_id)
-      .anchor_billing_cycle_on(Time.now.next_month.at_beginning_of_month.to_i)
+      .anchor_billing_cycle_on(Time.current.next_month.at_beginning_of_month.to_i)
       .create('pm_card_visa')
 
     subscription = user.subscription('main')
@@ -333,8 +333,8 @@ describe 'subscriptions', type: :request do
     invoice = user.invoices.first
     invoice_period = invoice.invoice_items.first.period
 
-    expect(Time.at(invoice_period.start).strftime('%Y-%m-%d')).to eq(Time.now.strftime('%Y-%m-%d'))
-    expect(Time.at(invoice_period.end).strftime('%Y-%m-%d')).to eq(Time.now.next_month.at_beginning_of_month.strftime('%Y-%m-%d'))
+    expect(Time.zone.at(invoice_period.start).strftime('%Y-%m-%d')).to eq(Time.current.strftime('%Y-%m-%d'))
+    expect(Time.zone.at(invoice_period.end).strftime('%Y-%m-%d')).to eq(Time.current.next_month.at_beginning_of_month.strftime('%Y-%m-%d'))
   end
 
   it 'test_creating_subscription_with_trial' do
@@ -351,7 +351,7 @@ describe 'subscriptions', type: :request do
     expect(subscription.on_trial).to be true
     expect(subscription.recurring).to be false
     expect(subscription.ended).to be false
-    expect(Time.at(subscription.trial_ends_at).strftime('%Y-%m-%d')).to eq((Time.now + 7.days).strftime('%Y-%m-%d'))
+    expect(Time.zone.at(subscription.trial_ends_at).strftime('%Y-%m-%d')).to eq((Time.current + 7.days).strftime('%Y-%m-%d'))
 
     # Cancel Subscription
     subscription.cancel
@@ -369,7 +369,7 @@ describe 'subscriptions', type: :request do
     expect(subscription.on_trial).to be true
     expect(subscription.recurring).to be false
     expect(subscription.ended).to be false
-    expect(Time.at(subscription.trial_ends_at).day).to eq((Time.now + 7.days).day)
+    expect(Time.zone.at(subscription.trial_ends_at).day).to eq((Time.current + 7.days).day)
   end
 
   it 'test_creating_subscription_with_explicit_trial' do
@@ -377,7 +377,7 @@ describe 'subscriptions', type: :request do
 
     # Create Subscription
     user.new_subscription('main', @plan_id)
-      .trial_until(Time.now + 1.day + 3.hours + 15.minutes)
+      .trial_until(Time.current + 1.day + 3.hours + 15.minutes)
       .create('pm_card_visa')
 
     subscription = user.subscription('main')
@@ -386,7 +386,7 @@ describe 'subscriptions', type: :request do
     expect(subscription.on_trial).to be true
     expect(subscription.recurring).to be false
     expect(subscription.ended).to be false
-    expect(Time.at(subscription.trial_ends_at).strftime('%Y-%m-%d')).to eq((Time.now + 1.day + 3.hours + 15.minutes).strftime('%Y-%m-%d'))
+    expect(Time.zone.at(subscription.trial_ends_at).strftime('%Y-%m-%d')).to eq((Time.current + 1.day + 3.hours + 15.minutes).strftime('%Y-%m-%d'))
 
     # Cancel Subscription
     subscription.cancel
@@ -404,7 +404,7 @@ describe 'subscriptions', type: :request do
     expect(subscription.on_trial).to be true
     expect(subscription.recurring).to be false
     expect(subscription.ended).to be false
-    expect(Time.at(subscription.trial_ends_at).day).to eq((Time.now + 1.day + 3.hours + 15.minutes).day)
+    expect(Time.zone.at(subscription.trial_ends_at).day).to eq((Time.current + 1.day + 3.hours + 15.minutes).day)
   end
 
   it 'test_subscription_changes_can_be_prorated' do
@@ -442,10 +442,10 @@ describe 'subscriptions', type: :request do
     subscription = user.new_subscription('main', @plan_id)
       .no_prorate
       .create('pm_card_visa', {}, {
-        :collection_method => 'send_invoice',
-        :days_until_due => 30,
-        :backdate_start_date => (Time.now + 5.days - 1.year).beginning_of_day.to_i,
-        :billing_cycle_anchor => (Time.now + 5.days).beginning_of_day.to_i,
+        collection_method: 'send_invoice',
+        days_until_due: 30,
+        backdate_start_date: (Time.current + 5.days - 1.year).beginning_of_day.to_i,
+        billing_cycle_anchor: (Time.current + 5.days).beginning_of_day.to_i,
       })
 
     expect(subscription.stripe_plan).to eq(@plan_id)
@@ -463,10 +463,10 @@ describe 'subscriptions', type: :request do
     subscription = user.new_subscription('main', @plan_id)
       .no_prorate
       .create('pm_card_visa', {}, {
-        :collection_method => 'send_invoice',
-        :days_until_due => 30,
-        :backdate_start_date => (Time.now + 5.days - 1.year).beginning_of_day.to_i,
-        :billing_cycle_anchor => (Time.now + 5.days).beginning_of_day.to_i,
+        collection_method: 'send_invoice',
+        days_until_due: 30,
+        backdate_start_date: (Time.current + 5.days - 1.year).beginning_of_day.to_i,
+        billing_cycle_anchor: (Time.current + 5.days).beginning_of_day.to_i,
       })
 
     expect(subscription.stripe_plan).to eq(@plan_id)
@@ -489,7 +489,7 @@ describe 'subscriptions', type: :request do
 
     expect(subscription.trial_ends_at).to be_nil
 
-    trial_ends_at = Time.now + 1.day
+    trial_ends_at = Time.current + 1.day
 
     subscription.extend_trial(trial_ends_at)
 
@@ -514,13 +514,13 @@ describe 'subscriptions', type: :request do
 
     # Start with an incomplete subscription.
     subscription = user.subscriptions.create({
-      :name => 'yearly',
-      :stripe_id => 'xxxx',
-      :stripe_status => 'incomplete',
-      :stripe_plan => 'stripe-yearly',
-      :quantity => 1,
-      :trial_ends_at => nil,
-      :ends_at => nil,
+      name: 'yearly',
+      stripe_id: 'xxxx',
+      stripe_status: 'incomplete',
+      stripe_plan: 'stripe-yearly',
+      quantity: 1,
+      trial_ends_at: nil,
+      ends_at: nil,
     })
 
     # Subscription is incomplete
@@ -536,7 +536,7 @@ describe 'subscriptions', type: :request do
     expect(user.subscriptions.ended.exists?).to be false
 
     # Activate.
-    subscription.update({:stripe_status => 'active'})
+    subscription.update({ stripe_status: 'active' })
 
     expect(user.subscriptions.incomplete.exists?).to be false
     expect(user.subscriptions.active.exists?).to be true
@@ -550,7 +550,7 @@ describe 'subscriptions', type: :request do
     expect(user.subscriptions.ended.exists?).to be false
 
     # Put on trial.
-    subscription.update({:trial_ends_at => Time.now + 1.day})
+    subscription.update({ trial_ends_at: Time.current + 1.day })
 
     expect(user.subscriptions.incomplete.exists?).to be false
     expect(user.subscriptions.active.exists?).to be true
@@ -564,7 +564,7 @@ describe 'subscriptions', type: :request do
     expect(user.subscriptions.ended.exists?).to be false
 
     # Put on grace period.
-    subscription.update({:ends_at => Time.now + 1.day})
+    subscription.update({ ends_at: Time.current + 1.day })
 
     expect(user.subscriptions.incomplete.exists?).to be false
     expect(user.subscriptions.active.exists?).to be true
@@ -578,7 +578,7 @@ describe 'subscriptions', type: :request do
     expect(user.subscriptions.ended.exists?).to be false
 
     # End subscription.
-    subscription.update({:ends_at => Time.now - 1.day})
+    subscription.update({ ends_at: Time.current - 1.day })
 
     expect(user.subscriptions.incomplete.exists?).to be false
     expect(user.subscriptions.active.exists?).to be false
@@ -598,8 +598,8 @@ describe 'subscriptions', type: :request do
     Reji.keep_past_due_subscriptions_active
 
     subscription.update({
-      :ends_at => nil,
-      :stripe_status => 'past_due',
+      ends_at: nil,
+      stripe_status: 'past_due',
     })
 
     expect(subscription.active).to be true
@@ -615,8 +615,8 @@ describe 'subscriptions', type: :request do
     begin
       user.new_subscription('main', @plan_id).create('pm_card_threeDSecure2Required')
 
-      raise RSpec::Expectations::ExpectationNotMetError.new('Expected exception PaymentActionRequiredError was not thrown.')
-    rescue Reji::PaymentActionRequiredError => e
+      raise RSpec::Expectations::ExpectationNotMetError, 'Expected exception PaymentActionRequiredError was not thrown.'
+    rescue Reji::PaymentActionRequiredError => _e
       subscription = user.subscription('main')
 
       payment = subscription.latest_payment
@@ -639,9 +639,9 @@ describe 'subscriptions', type: :request do
   it 'test_subscriptions_with_options_can_be_created' do
     user = create_customer('subscriptions_with_options_can_be_created')
 
-    backdate_start_date = (Time.now - 1.month).to_i
+    backdate_start_date = (Time.current - 1.month).to_i
     subscription = user.new_subscription('main', @plan_id).create(
-      'pm_card_visa', {}, {:backdate_start_date => backdate_start_date}
+      'pm_card_visa', {}, { backdate_start_date: backdate_start_date }
     )
     stripe_subscription = subscription.as_stripe_subscription
 

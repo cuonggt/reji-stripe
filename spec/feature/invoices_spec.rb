@@ -6,9 +6,9 @@ describe 'invoices', type: :request do
   it 'test_require_stripe_customer_for_invoicing' do
     user = create_customer('require_stripe_customer_for_invoicing')
 
-    expect {
+    expect do
       user.invoice
-    }.to raise_error(Reji::InvalidCustomerError)
+    end.to raise_error(Reji::InvalidCustomerError)
   end
 
   it 'test_invoicing_fails_with_nothing_to_invoice' do
@@ -53,9 +53,9 @@ describe 'invoices', type: :request do
     user.update_default_payment_method('pm_card_visa')
     invoice = user.invoice_for('Rails Reji', 1000)
 
-    expect {
+    expect do
       other_user.find_invoice(invoice.id)
-    }.to raise_error(Reji::InvalidInvoiceError, "The invoice `#{invoice.id}` does not belong to this customer `#{other_user.stripe_id}`.")
+    end.to raise_error(Reji::InvalidInvoiceError, "The invoice `#{invoice.id}` does not belong to this customer `#{other_user.stripe_id}`.")
   end
 
   it 'test_find_invoice_by_id_or_fail' do
@@ -66,8 +66,8 @@ describe 'invoices', type: :request do
     user.update_default_payment_method('pm_card_visa')
     invoice = user.invoice_for('Rails Reji', 1000)
 
-    expect {
+    expect do
       other_user.find_invoice_or_fail(invoice.id)
-    }.to raise_error(Reji::AccessDeniedHttpError)
+    end.to raise_error(Reji::AccessDeniedHttpError)
   end
 end

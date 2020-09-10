@@ -9,11 +9,11 @@ module Reji
     def initialize(owner, name, plans = [])
       @owner = owner
       @name = name
-      @trial_expires # The date and time the trial will expire.
+      @trial_expires = nil # The date and time the trial will expire.
       @skip_trial = false # Indicates that the trial should end immediately.
       @billing_cycle_anchor = nil # The date on which the billing cycle should be anchored.
-      @coupon # The coupon code being applied to the customer.
-      @metadata # The metadata to apply to the subscription.
+      @coupon = nil # The coupon code being applied to the customer.
+      @metadata = nil # The metadata to apply to the subscription.
       @items = {}
 
       plans = [plans] unless plans.instance_of? Array
@@ -24,11 +24,11 @@ module Reji
     # Set a plan on the subscription builder.
     def plan(plan, quantity = 1)
       options = {
-        :plan => plan,
-        :quantity => quantity
+        plan: plan,
+        quantity: quantity,
       }
 
-      tax_rates = self.get_plan_tax_rates_for_payload(plan)
+      tax_rates = get_plan_tax_rates_for_payload(plan)
 
       options[:tax_rates] = tax_rates if tax_rates
 
@@ -40,7 +40,7 @@ module Reji
     # Specify the quantity of a subscription item.
     def quantity(quantity, plan = nil)
       if plan.nil?
-        raise ArgumentError.new('Plan is required when creating multi-plan subscriptions.') if @items.length > 1
+        raise ArgumentError, 'Plan is required when creating multi-plan subscriptions.' if @items.length > 1
 
         plan = @items.values[0][:plan]
       end
@@ -50,7 +50,7 @@ module Reji
 
     # Specify the number of days of the trial.
     def trial_days(trial_days)
-      @trial_expires = Time.now + trial_days.days
+      @trial_expires = Time.current + trial_days.days
 
       self
     end
@@ -92,16 +92,14 @@ module Reji
 
     # Add a new Stripe subscription to the Stripe model.
     def add(customer_options = {}, subscription_options = {})
-      self.create(nil, customer_options, subscription_options)
+      create(nil, customer_options, subscription_options)
     end
 
     # Create a new Stripe subscription.
     def create(payment_method = nil, customer_options = {}, subscription_options = {})
-      customer = self.get_stripe_customer(payment_method, customer_options)
+      customer = get_stripe_customer(payment_method, customer_options)
 
-      payload = {:customer => customer.id}
-        .merge(self.build_payload)
-        .merge(subscription_options)
+      payload = { customer: customer.id }.merge(build_payload).merge(subscription_options)
 
       stripe_subscription = Stripe::Subscription.create(
         payload,
@@ -109,34 +107,30 @@ module Reji
       )
 
       subscription = @owner.subscriptions.create({
-        :name => @name,
-        :stripe_id => stripe_subscription.id,
-        :stripe_status => stripe_subscription.status,
-        :stripe_plan => stripe_subscription.plan ? stripe_subscription.plan.id : nil,
-        :quantity => stripe_subscription.quantity,
-        :trial_ends_at => @skip_trial ? nil : @trial_expires,
-        :ends_at => nil,
+        name: @name,
+        stripe_id: stripe_subscription.id,
+        stripe_status: stripe_subscription.status,
+        stripe_plan: stripe_subscription.plan ? stripe_subscription.plan.id : nil,
+        quantity: stripe_subscription.quantity,
+        trial_ends_at: @skip_trial ? nil : @trial_expires,
+        ends_at: nil,
       })
 
       stripe_subscription.items.each do |item|
         subscription.items.create({
-          :stripe_id => item.id,
-          :stripe_plan => item.plan.id,
-          :quantity => item.quantity,
+          stripe_id: item.id,
+          stripe_plan: item.plan.id,
+          quantity: item.quantity,
         })
       end
 
-      if subscription.has_incomplete_payment
-        Payment.new(stripe_subscription.latest_invoice.payment_intent).validate
-      end
+      Payment.new(stripe_subscription.latest_invoice.payment_intent).validate if subscription.incomplete_payment?
 
       subscription
     end
 
-    protected
-
     # Get the Stripe customer instance for the current user and payment method.
-    def get_stripe_customer(payment_method = nil, options = {})
+    protected def get_stripe_customer(payment_method = nil, options = {})
       customer = @owner.create_or_get_stripe_customer(options)
 
       @owner.update_default_payment_method(payment_method) if payment_method
@@ -145,20 +139,20 @@ module Reji
     end
 
     # Build the payload for subscription creation.
-    def build_payload
+    protected def build_payload
       payload = {
-        :billing_cycle_anchor => @billing_cycle_anchor,
-        :coupon => @coupon,
-        :expand => ['latest_invoice.payment_intent'],
-        :metadata => @metadata,
-        :items => @items.values,
-        :payment_behavior => self.payment_behavior,
-        :proration_behavior => self.prorate_behavior,
-        :trial_end => self.get_trial_end_for_payload,
-        :off_session => true,
+        billing_cycle_anchor: @billing_cycle_anchor,
+        coupon: @coupon,
+        expand: ['latest_invoice.payment_intent'],
+        metadata: @metadata,
+        items: @items.values,
+        payment_behavior: payment_behavior,
+        proration_behavior: proration_behavior,
+        trial_end: get_trial_end_for_payload,
+        off_session: true,
       }
 
-      tax_rates = self.get_tax_rates_for_payload
+      tax_rates = get_tax_rates_for_payload
 
       if tax_rates
         payload[:default_tax_rates] = tax_rates
@@ -166,7 +160,7 @@ module Reji
         return payload
       end
 
-      tax_percentage = self.get_tax_percentage_for_payload
+      tax_percentage = get_tax_percentage_for_payload
 
       payload[:tax_percent] = tax_percentage if tax_percentage
 
@@ -174,33 +168,31 @@ module Reji
     end
 
     # Get the trial ending date for the Stripe payload.
-    def get_trial_end_for_payload
+    protected def get_trial_end_for_payload
       return 'now' if @skip_trial
 
-      @trial_expires.to_i if @trial_expires
+      @trial_expires&.to_i
     end
 
     # Get the tax percentage for the Stripe payload.
-    def get_tax_percentage_for_payload
+    protected def get_tax_percentage_for_payload
       tax_percentage = @owner.tax_percentage
 
       tax_percentage if tax_percentage > 0
     end
 
     # Get the tax rates for the Stripe payload.
-    def get_tax_rates_for_payload
+    protected def get_tax_rates_for_payload
       tax_rates = @owner.tax_rates
 
       tax_rates unless tax_rates.empty?
     end
 
     # Get the plan tax rates for the Stripe payload.
-    def get_plan_tax_rates_for_payload(plan)
+    protected def get_plan_tax_rates_for_payload(plan)
       tax_rates = @owner.plan_tax_rates
 
-      unless tax_rates.empty?
-        tax_rates[plan] || nil
-      end
+      tax_rates[plan] || nil unless tax_rates.empty?
     end
   end
 end

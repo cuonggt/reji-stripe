@@ -10,47 +10,47 @@ describe 'multiplan subscriptions', type: :request do
     @premium_plan_id = "#{stripe_prefix}monthly-20-premium-#{SecureRandom.hex(5)}"
 
     Stripe::Product.create({
-      :id => @product_id,
-      :name => 'Rails Reji Test Product',
-      :type => 'service',
+      id: @product_id,
+      name: 'Rails Reji Test Product',
+      type: 'service',
     })
 
     Stripe::Plan.create({
-      :id => @plan_id,
-      :nickname => 'Monthly $10',
-      :currency => 'USD',
-      :interval => 'month',
-      :billing_scheme => 'per_unit',
-      :amount => 1000,
-      :product => @product_id,
+      id: @plan_id,
+      nickname: 'Monthly $10',
+      currency: 'USD',
+      interval: 'month',
+      billing_scheme: 'per_unit',
+      amount: 1000,
+      product: @product_id,
     })
 
     Stripe::Plan.create({
-      :id => @other_plan_id,
-      :nickname => 'Monthly $10 Other',
-      :currency => 'USD',
-      :interval => 'month',
-      :billing_scheme => 'per_unit',
-      :amount => 1000,
-      :product => @product_id,
+      id: @other_plan_id,
+      nickname: 'Monthly $10 Other',
+      currency: 'USD',
+      interval: 'month',
+      billing_scheme: 'per_unit',
+      amount: 1000,
+      product: @product_id,
     })
 
     Stripe::Plan.create({
-      :id => @premium_plan_id,
-      :nickname => 'Monthly $20 Premium',
-      :currency => 'USD',
-      :interval => 'month',
-      :billing_scheme => 'per_unit',
-      :amount => 2000,
-      :product => @product_id,
+      id: @premium_plan_id,
+      nickname: 'Monthly $20 Premium',
+      currency: 'USD',
+      interval: 'month',
+      billing_scheme: 'per_unit',
+      amount: 2000,
+      product: @product_id,
     })
 
     @tax_rate_id = Stripe::TaxRate.create({
-      :display_name => 'VAT',
-      :description => 'VAT Belgium',
-      :jurisdiction => 'BE',
-      :percentage => 21,
-      :inclusive => false,
+      display_name: 'VAT',
+      description: 'VAT Belgium',
+      jurisdiction: 'BE',
+      percentage: 21,
+      inclusive: false,
     }).id
   end
 
@@ -64,7 +64,7 @@ describe 'multiplan subscriptions', type: :request do
   it 'test_customers_can_have_multiplan_subscriptions' do
     user = create_customer('customers_can_have_multiplan_subscriptions')
 
-    user.plan_tax_rates = {@other_plan_id => [@tax_rate_id]}
+    user.plan_tax_rates = { @other_plan_id => [@tax_rate_id] }
 
     subscription = user.new_subscription('main', [@plan_id, @other_plan_id])
       .plan(@premium_plan_id, 5)
@@ -124,11 +124,11 @@ describe 'multiplan subscriptions', type: :request do
   it 'test_customers_cannot_remove_the_last_plan' do
     user = create_customer('customers_cannot_remove_the_last_plan')
 
-    subscription = self.create_subscription_with_single_plan(user)
+    subscription = create_subscription_with_single_plan(user)
 
-    expect {
+    expect do
       subscription.remove_plan(@plan_id)
-    }.to raise_error(Reji::SubscriptionUpdateFailureError)
+    end.to raise_error(Reji::SubscriptionUpdateFailureError)
   end
 
   it 'test_multiplan_subscriptions_can_be_resumed' do
@@ -152,11 +152,11 @@ describe 'multiplan subscriptions', type: :request do
   it 'test_plan_is_required_when_updating_quantities_for_multiplan_subscriptions' do
     user = create_customer('plan_is_required_when_updating_quantities_for_multiplan_subscriptions')
 
-    subscription = self.create_subscription_with_multiple_plans(user)
+    subscription = create_subscription_with_multiple_plans(user)
 
-    expect {
+    expect do
       subscription.update_quantity(5)
-    }.to raise_error(ArgumentError)
+    end.to raise_error(ArgumentError)
   end
 
   it 'test_subscription_item_quantities_can_be_updated' do
@@ -227,7 +227,7 @@ describe 'multiplan subscriptions', type: :request do
 
     subscription = user.new_subscription('main', @plan_id).create('pm_card_visa')
 
-    item = subscription.items.first.swap(@other_plan_id, {:quantity => 3})
+    item = subscription.items.first.swap(@other_plan_id, { quantity: 3 })
 
     expect(subscription.items.count).to eq(1)
     expect(subscription.stripe_plan).to eq(@other_plan_id)
@@ -279,39 +279,37 @@ describe 'multiplan subscriptions', type: :request do
     expect(user.upcoming_invoice.raw_total).to eq(2000)
   end
 
-  protected
-
   # Create a subscription with a single plan.
-  def create_subscription_with_single_plan(user)
+  protected def create_subscription_with_single_plan(user)
     subscription = user.subscriptions.create({
-      :name => 'main',
-      :stripe_id => 'sub_foo',
-      :stripe_plan => @plan_id,
-      :quantity => 1,
-      :stripe_status => 'active',
+      name: 'main',
+      stripe_id: 'sub_foo',
+      stripe_plan: @plan_id,
+      quantity: 1,
+      stripe_status: 'active',
     })
 
     subscription.items.create({
-      :stripe_id => 'it_foo',
-      :stripe_plan => @plan_id,
-      :quantity => 1,
+      stripe_id: 'it_foo',
+      stripe_plan: @plan_id,
+      quantity: 1,
     })
 
     subscription
   end
 
   # Create a subscription with multiple plans.
-  def create_subscription_with_multiple_plans(user)
-    subscription = self.create_subscription_with_single_plan(user)
+  protected def create_subscription_with_multiple_plans(user)
+    subscription = create_subscription_with_single_plan(user)
 
     subscription.stripe_plan = nil
     subscription.quantity = nil
     subscription.save
 
     subscription.items.new({
-      :stripe_id => 'it_foo',
-      :stripe_plan => @other_plan_id,
-      :quantity => 1,
+      stripe_id: 'it_foo',
+      stripe_plan: @other_plan_id,
+      quantity: 1,
     })
 
     subscription

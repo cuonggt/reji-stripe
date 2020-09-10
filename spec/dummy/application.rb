@@ -4,7 +4,7 @@ require 'rails/all'
 require 'reji'
 
 module Dummy
-  APP_ROOT = File.expand_path('..', __FILE__).freeze
+  APP_ROOT = File.expand_path(__dir__).freeze
 
   I18n.enforce_available_locales = true
 
@@ -30,14 +30,10 @@ module Dummy
     config.secret_key_base = 'SECRET_KEY_BASE'
 
     if config.active_record.sqlite3.respond_to?(:represent_boolean_as_integer)
-      if Rails::VERSION::MAJOR < 6
-        config.active_record.sqlite3.represent_boolean_as_integer = true
-      end
+      config.active_record.sqlite3.represent_boolean_as_integer = true if Rails::VERSION::MAJOR < 6
     end
 
-    if Rails::VERSION::MAJOR >= 6
-      config.action_mailer.delivery_job = 'ActionMailer::MailDeliveryJob'
-    end
+    config.action_mailer.delivery_job = 'ActionMailer::MailDeliveryJob' if Rails::VERSION::MAJOR >= 6
 
     config.active_job.queue_adapter = :inline
 

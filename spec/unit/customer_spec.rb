@@ -8,11 +8,11 @@ describe 'customer', type: :unit do
 
     expect(user.on_generic_trial).to be false
 
-    user.trial_ends_at = Time.now + 1.day
+    user.trial_ends_at = Time.current + 1.day
 
     expect(user.on_generic_trial).to be true
 
-    user.trial_ends_at = Time.now - 5.days
+    user.trial_ends_at = Time.current - 5.days
 
     expect(user.on_generic_trial).to be false
   end
@@ -22,11 +22,11 @@ describe 'customer', type: :unit do
 
     user.card_brand = 'visa'
 
-    expect(user.has_default_payment_method).to be true
+    expect(user.default_payment_method?).to be true
 
     user = User.new
 
-    expect(user.has_default_payment_method).to be false
+    expect(user.default_payment_method?).to be false
   end
 
   it 'returns_nil_default_payment_method_when_the_user_is_not_a_customer_yet' do
@@ -38,17 +38,17 @@ describe 'customer', type: :unit do
   it 'cannot_return_stripe_customer_when_stripe_id_is_not_set' do
     user = User.new
 
-    expect {
+    expect do
       user.as_stripe_customer
-    }.to raise_error(Reji::InvalidCustomerError)
+    end.to raise_error(Reji::InvalidCustomerError)
   end
 
   it 'cannot_create_stripe_customer_when_stripe_id_is_already_set' do
     user = User.new
     user.stripe_id = 'foo'
 
-    expect {
+    expect do
       user.create_as_stripe_customer
-    }.to raise_error(Reji::CustomerAlreadyCreatedError)
+    end.to raise_error(Reji::CustomerAlreadyCreatedError)
   end
 end

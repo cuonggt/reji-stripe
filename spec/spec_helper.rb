@@ -7,7 +7,7 @@ require 'dummy/application'
 
 require 'rspec/rails'
 
-Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
+Dir[Rails.root.join('spec/support/**/*.rb')].sort.each { |f| require f }
 
 Dummy::Application.initialize!
 
@@ -21,7 +21,7 @@ RSpec.configure do |config|
 
   config.infer_spec_type_from_file_location!
 
-  %i(request).each do |type|
+  %i[request].each do |type|
     config.include(Reji::Test::FeatureHelpers, type: type)
   end
 end

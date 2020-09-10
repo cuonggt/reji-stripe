@@ -10,39 +10,39 @@ describe 'pending updates', type: :request do
     @premium_plan_id = "#{stripe_prefix}monthly-20-premium-#{SecureRandom.hex(5)}"
 
     Stripe::Product.create({
-      :id => @product_id,
-      :name => 'Rails Reji Test Product',
-      :type => 'service',
+      id: @product_id,
+      name: 'Rails Reji Test Product',
+      type: 'service',
     })
 
     Stripe::Plan.create({
-      :id => @plan_id,
-      :nickname => 'Monthly $10',
-      :currency => 'USD',
-      :interval => 'month',
-      :billing_scheme => 'per_unit',
-      :amount => 1000,
-      :product => @product_id,
+      id: @plan_id,
+      nickname: 'Monthly $10',
+      currency: 'USD',
+      interval: 'month',
+      billing_scheme: 'per_unit',
+      amount: 1000,
+      product: @product_id,
     })
 
     Stripe::Plan.create({
-      :id => @other_plan_id,
-      :nickname => 'Monthly $10 Other',
-      :currency => 'USD',
-      :interval => 'month',
-      :billing_scheme => 'per_unit',
-      :amount => 1000,
-      :product => @product_id,
+      id: @other_plan_id,
+      nickname: 'Monthly $10 Other',
+      currency: 'USD',
+      interval: 'month',
+      billing_scheme: 'per_unit',
+      amount: 1000,
+      product: @product_id,
     })
 
     Stripe::Plan.create({
-      :id => @premium_plan_id,
-      :nickname => 'Monthly $20 Premium',
-      :currency => 'USD',
-      :interval => 'month',
-      :billing_scheme => 'per_unit',
-      :amount => 2000,
-      :product => @product_id,
+      id: @premium_plan_id,
+      nickname: 'Monthly $20 Premium',
+      currency: 'USD',
+      interval: 'month',
+      billing_scheme: 'per_unit',
+      amount: 2000,
+      product: @product_id,
     })
   end
 
@@ -65,8 +65,8 @@ describe 'pending updates', type: :request do
       # Attempt to swap and pay with a faulty card.
       subscription = subscription.error_if_payment_fails.swap_and_invoice(@premium_plan_id)
 
-      raise RSpec::Expectations::ExpectationNotMetError.new('Expected exception PaymentFailureError was not thrown.')
-    rescue Stripe::CardError => e
+      raise RSpec::Expectations::ExpectationNotMetError, 'Expected exception PaymentFailureError was not thrown.'
+    rescue Stripe::CardError => _e
       # Assert that the plan was not swapped.
       expect(subscription.stripe_plan).to eq(@plan_id)
 

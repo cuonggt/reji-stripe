@@ -6,64 +6,61 @@ module Reji
 
     # Add an invoice item to the customer's upcoming invoice.
     def tab(description, amount, options = {})
-      self.assert_customer_exists
+      assert_customer_exists
 
       options = {
-        :customer => self.stripe_id,
-        :amount => amount,
-        :currency => self.preferred_currency,
-        :description => description,
+        customer: stripe_id,
+        amount: amount,
+        currency: preferred_currency,
+        description: description,
       }.merge(options)
 
-      Stripe::InvoiceItem.create(options, self.stripe_options)
+      Stripe::InvoiceItem.create(options, stripe_options)
     end
 
     # Invoice the customer for the given amount and generate an invoice immediately.
     def invoice_for(description, amount, tab_options = {}, invoice_options = {})
-      self.tab(description, amount, tab_options)
+      tab(description, amount, tab_options)
 
-      self.invoice(invoice_options)
+      invoice(invoice_options)
     end
 
     # Invoice the billable entity outside of the regular billing cycle.
     def invoice(options = {})
-      self.assert_customer_exists
-
-      parameters = options.merge({:customer => self.stripe_id})
+      assert_customer_exists
 
       begin
-        stripe_invoice = Stripe::Invoice.create(parameters, self.stripe_options)
+        stripe_invoice = Stripe::Invoice.create(options.merge({ customer: stripe_id }), stripe_options)
 
-        if stripe_invoice.collection_method == 'charge_automatically'
-          stripe_invoice = stripe_invoice.pay
-        else
-          stripe_invoice = stripe_invoice.send_invoice
-        end
+        stripe_invoice =
+          if stripe_invoice.collection_method == 'charge_automatically'
+            stripe_invoice.pay
+          else
+            stripe_invoice.send_invoice
+          end
 
         Invoice.new(self, stripe_invoice)
-      rescue Stripe::InvalidRequestError => e
+      rescue Stripe::InvalidRequestError => _e
         false
-      rescue Stripe::CardError => e
-        payment = Payment.new(
+      rescue Stripe::CardError => _e
+        Payment.new(
           Stripe::PaymentIntent.retrieve(
-            {:id => stripe_invoice.payment_intent, :expand => ['invoice.subscription']},
-            self.stripe_options
+            { id: stripe_invoice.payment_intent, expand: ['invoice.subscription'] },
+            stripe_options
           )
-        )
-
-        payment.validate
+        ).validate
       end
     end
 
     # Get the entity's upcoming invoice.
     def upcoming_invoice
-      return unless self.has_stripe_id
+      return unless stripe_id?
 
       begin
-        stripe_invoice = Stripe::Invoice.upcoming({:customer => self.stripe_id}, self.stripe_options)
+        stripe_invoice = Stripe::Invoice.upcoming({ customer: stripe_id }, stripe_options)
 
         Invoice.new(self, stripe_invoice)
-      rescue Stripe::InvalidRequestError => e
+      rescue Stripe::InvalidRequestError => _e
         #
       end
     end
@@ -73,8 +70,8 @@ module Reji
       stripe_invoice = nil
 
       begin
-        stripe_invoice = Stripe::Invoice.retrieve(id, self.stripe_options)
-      rescue => e
+        stripe_invoice = Stripe::Invoice.retrieve(id, stripe_options)
+      rescue StandardError => _e
         #
       end
 
@@ -84,9 +81,9 @@ module Reji
     # Find an invoice or throw a 404 or 403 error.
     def find_invoice_or_fail(id)
       begin
-        invoice = self.find_invoice(id)
+        invoice = find_invoice(id)
       rescue InvalidInvoiceError => e
-        raise Reji::AccessDeniedHttpError.new(e.message)
+        raise Reji::AccessDeniedHttpError, e.message
       end
 
       raise ActiveRecord::RecordNotFound if invoice.nil?
@@ -96,33 +93,29 @@ module Reji
 
     # Create an invoice download response.
     def download_invoice(id, data, filename = nil)
-      invoice = self.find_invoice_or_fail(id)
+      invoice = find_invoice_or_fail(id)
 
       filename ? invoice.download_as(filename, data) : invoice.download(data)
     end
 
     # Get a collection of the entity's invoices.
     def invoices(include_pending = false, parameters = {})
-      return [] unless self.has_stripe_id
+      return [] unless stripe_id?
 
       invoices = []
 
-      parameters = {:limit => 24}.merge(parameters)
+      parameters = { limit: 24 }.merge(parameters)
 
       stripe_invoices = Stripe::Invoice.list(
-        {:customer => self.stripe_id}.merge(parameters),
-        self.stripe_options
+        { customer: stripe_id }.merge(parameters),
+        stripe_options
       )
 
       # Here we will loop through the Stripe invoices and create our own custom Invoice
       # instances that have more helper methods and are generally more convenient to
       # work with than the plain Stripe objects are. Then, we'll return the array.
-      unless stripe_invoices.nil?
-        stripe_invoices.data.each do |invoice|
-          if invoice.paid || include_pending
-            invoices << Invoice.new(self, invoice)
-          end
-        end
+      stripe_invoices&.data&.each do |invoice|
+        invoices << Invoice.new(self, invoice) if invoice.paid || include_pending
       end
 
       invoices
@@ -130,7 +123,7 @@ module Reji
 
     # Get an array of the entity's invoices.
     def invoices_include_pending(parameters = {})
-      self.invoices(true, parameters)
+      invoices(true, parameters)
     end
   end
 end

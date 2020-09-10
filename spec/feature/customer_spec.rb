@@ -7,7 +7,7 @@ describe 'customer', type: :request do
     user = create_customer('customers_in_stripe_can_be_updated')
     user.create_as_stripe_customer
 
-    customer = user.update_stripe_customer({:description => 'Van Cam'})
+    customer = user.update_stripe_customer({ description: 'Van Cam' })
 
     expect(customer.description).to eq('Van Cam')
   end

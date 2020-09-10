@@ -3,7 +3,9 @@
 module Reji
   class PaymentMethod
     def initialize(owner, payment_method)
-      raise Reji::InvalidPaymentMethodError.invalid_owner(payment_method, owner) if owner.stripe_id != payment_method.customer
+      if owner.stripe_id != payment_method.customer
+        raise Reji::InvalidPaymentMethodError.invalid_owner(payment_method, owner)
+      end
 
       @owner = owner
       @payment_method = payment_method
@@ -15,9 +17,7 @@ module Reji
     end
 
     # Get the Stripe model instance.
-    def owner
-      @owner
-    end
+    attr_reader :owner
 
     # Get the Stripe PaymentMethod instance.
     def as_stripe_payment_method
@@ -27,6 +27,10 @@ module Reji
     # Dynamically get values from the Stripe PaymentMethod.
     def method_missing(key)
       @payment_method[key]
+    end
+
+    def respond_to_missing?(method_name, include_private = false)
+      super
     end
   end
 end

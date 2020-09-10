@@ -31,7 +31,7 @@ module Reji
     end
 
     # Determine the prorating behavior when updating the subscription.
-    def prorate_behavior
+    def proration_behavior
       @proration_behavior ||= 'create_prorations'
     end
   end

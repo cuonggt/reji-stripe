@@ -9,26 +9,23 @@ module Reji
 
       type = payload['type']
 
-      return self.missing_method if type.nil?
+      return missing_method if type.nil?
 
       method = "handle_#{payload['type'].gsub('.', '_')}"
 
-      self.respond_to?(method, true) ?
-        self.send(method, payload) :
-        self.missing_method
+      respond_to?(method, true) ? send(method, payload) : missing_method
     end
 
-    protected
-
     # Handle customer subscription updated.
-    def handle_customer_subscription_updated(payload)
-      user = self.get_user_by_stripe_id(payload.dig('data', 'object', 'customer'))
+    # rubocop:disable Metrics/MethodLength
+    protected def handle_customer_subscription_updated(payload)
+      user = get_user_by_stripe_id(payload.dig('data', 'object', 'customer'))
 
-      return self.success_method if user.nil?
+      return success_method if user.nil?
 
       data = payload.dig('data', 'object')
 
-      return self.success_method if data.nil?
+      return success_method if data.nil?
 
       user.subscriptions
         .select { |subscription| subscription.stripe_id == data['id'] }
@@ -37,7 +34,7 @@ module Reji
             subscription.items.destroy_all
             subscription.destroy
 
-            return self.success_method
+            return success_method
           end
 
           # Plan...
@@ -47,123 +44,115 @@ module Reji
           subscription.quantity = data['quantity']
 
           # Trial ending date...
-          unless data['trial_end'].nil?
+          if data['trial_end'].present?
             if subscription.trial_ends_at.nil? || subscription.trial_ends_at.to_i != data['trial_end']
-              subscription.trial_ends_at = Time.at(data['trial_end'])
+              subscription.trial_ends_at = Time.zone.at(data['trial_end'])
             end
           end
 
           # Cancellation date...
-          unless data['cancel_at_period_end'].nil?
-            if data['cancel_at_period_end']
-              subscription.ends_at = subscription.on_trial ?
-                subscription.trial_ends_at :
-                Time.at(data['cancel_at_period_end'])
+          subscription.ends_at =
+            if data['cancel_at_period_end'].blank?
+              nil
             else
-              subscription.ends_at = nil
+              (subscription.on_trial ? subscription.trial_ends_at : Time.zone.at(data['cancel_at_period_end']))
             end
-          end
 
           # Status...
-          unless data['status'].nil?
-            subscription.stripe_status = data['status']
-          end
+          subscription.stripe_status = data['status'] unless data['status'].nil?
 
           subscription.save
 
           # Update subscription items...
-          if data.key?('items')
-            plans = []
+          next unless data.key?('items')
 
-            items = data.dig('items', 'data')
+          plans = []
 
-            unless items.blank?
-              items.each do |item|
-                plans << item.dig('plan', 'id')
+          items = data.dig('items', 'data') || []
 
-                subscription_item = subscription.items.find_or_create_by({:stripe_id => item['id']}) do |subscription_item|
-                  subscription_item.stripe_plan = item.dig('plan', 'id')
-                  subscription_item.quantity = item['quantity']
-                end
-              end
+          items.each do |item|
+            plans << item.dig('plan', 'id')
+
+            subscription.items.find_or_create_by({ stripe_id: item['id'] }) do |subscription_item|
+              subscription_item.stripe_plan = item.dig('plan', 'id')
+              subscription_item.quantity = item['quantity']
             end
-
-            # Delete items that aren't attached to the subscription anymore...
-            subscription.items.where('stripe_plan NOT IN (?)', plans).destroy_all
           end
+
+          # Delete items that aren't attached to the subscription anymore...
+          subscription.items.where('stripe_plan NOT IN (?)', plans).destroy_all
         end
 
-      self.success_method
+      success_method
     end
+    # rubocop:enable Metrics/MethodLength
 
     # Handle a cancelled customer from a Stripe subscription.
-    def handle_customer_subscription_deleted(payload)
-      user = self.get_user_by_stripe_id(payload.dig('data', 'object', 'customer'))
+    protected def handle_customer_subscription_deleted(payload)
+      user = get_user_by_stripe_id(payload.dig('data', 'object', 'customer'))
 
       unless user.nil?
         user.subscriptions
           .select { |subscription| subscription.stripe_id == payload.dig('data', 'object', 'id') }
-          .each { |subscription| subscription.mark_as_cancelled }
+          .each(&:mark_as_cancelled)
       end
 
-      self.success_method
+      success_method
     end
 
     # Handle customer updated.
-    def handle_customer_updated(payload)
-      user = self.get_user_by_stripe_id(payload.dig('data', 'object', 'id'))
+    protected def handle_customer_updated(payload)
+      user = get_user_by_stripe_id(payload.dig('data', 'object', 'id'))
 
-      user.update_default_payment_method_from_stripe unless user.nil?
+      user&.update_default_payment_method_from_stripe
 
-      self.success_method
+      success_method
     end
 
     # Handle deleted customer.
-    def handle_customer_deleted(payload)
-      user = self.get_user_by_stripe_id(payload.dig('data', 'object', 'id'))
+    protected def handle_customer_deleted(payload)
+      user = get_user_by_stripe_id(payload.dig('data', 'object', 'id'))
 
       unless user.nil?
         user.subscriptions.each { |subscription| subscription.skip_trial.mark_as_cancelled }
 
         user.update({
-          :stripe_id => nil,
-          :trial_ends_at => nil,
-          :card_brand => nil,
-          :card_last_four => nil,
+          stripe_id: nil,
+          trial_ends_at: nil,
+          card_brand: nil,
+          card_last_four: nil,
         })
       end
 
-      self.success_method
+      success_method
     end
 
     # Get the billable entity instance by Stripe ID.
-    def get_user_by_stripe_id(stripe_id)
+    protected def get_user_by_stripe_id(stripe_id)
       Reji.find_billable(stripe_id)
     end
 
     # Handle successful calls on the controller.
-    def success_method
-      render plain: 'Webhook Handled', status: 200
+    protected def success_method
+      render plain: 'Webhook Handled', status: :ok
     end
 
     # Handle calls to missing methods on the controller.
-    def missing_method
+    protected def missing_method
       head :ok
     end
 
-    private
-
-    def verify_webhook_signature
+    protected def verify_webhook_signature
       return if Reji.configuration.webhook[:secret].blank?
 
       begin
         Stripe::Webhook.construct_event(
           request.body.read,
           request.env['HTTP_STRIPE_SIGNATURE'],
-          Reji.configuration.webhook[:secret],
+          Reji.configuration.webhook[:secret]
         )
       rescue Stripe::SignatureVerificationError => e
-        raise AccessDeniedHttpError.new(e.message)
+        raise AccessDeniedHttpError, e.message
       end
     end
   end

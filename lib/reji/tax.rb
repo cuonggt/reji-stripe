@@ -9,13 +9,11 @@ module Reji
     end
 
     # Get the applied currency.
-    def currency
-      @currency
-    end
+    attr_reader :currency
 
     # Get the total tax that was paid (or will be paid).
     def amount
-      self.format_amount(@amount)
+      format_amount(@amount)
     end
 
     # Get the raw total tax that was paid (or will be paid).
@@ -24,24 +22,24 @@ module Reji
     end
 
     # Determine if the tax is inclusive or not.
-    def is_inclusive
+    def inclusive?
       @tax_rate.inclusive
     end
 
     # Stripe::TaxRate
-    def tax_rate
-      @tax_rate
-    end
+    attr_reader :tax_rate
 
     # Dynamically get values from the Stripe TaxRate.
     def method_missing(key)
       @tax_rate[key]
     end
 
-    protected
+    def respond_to_missing?(method_name, include_private = false)
+      super
+    end
 
     # Format the given amount into a displayable currency.
-    def format_amount(amount)
+    protected def format_amount(amount)
       Reji.format_amount(amount, @currency)
     end
   end

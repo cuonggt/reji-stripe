@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 appraise 'rails_5.0' do
   gem 'railties', '~> 5.0'
   gem 'rspec-rails', '~> 3.1'

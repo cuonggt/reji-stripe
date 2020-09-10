@@ -6,16 +6,14 @@ describe 'invoice' do
   it 'can_return_the_invoice_date' do
     stripe_invoice = Stripe::Invoice.new
     stripe_invoice.customer = 'foo'
-    stripe_invoice.created = 1560541724
+    stripe_invoice.created = 1_560_541_724
 
     user = User.new
     user.stripe_id = 'foo'
 
     invoice = Reji::Invoice.new(user, stripe_invoice)
 
-    date = invoice.date
-
-    expect(invoice.date.to_i).to eq(1560541724)
+    expect(invoice.date.to_i).to eq(1_560_541_724)
   end
 
   it 'can_return_its_total' do
@@ -85,7 +83,7 @@ describe 'invoice' do
 
     invoice = Reji::Invoice.new(user, stripe_invoice)
 
-    expect(invoice.has_starting_balance).to be true
+    expect(invoice.starting_balance?).to be true
   end
 
   it 'can_determine_when_the_customer_does_not_have_a_starting_balance' do
@@ -98,7 +96,7 @@ describe 'invoice' do
 
     invoice = Reji::Invoice.new(user, stripe_invoice)
 
-    expect(invoice.has_starting_balance).to be false
+    expect(invoice.starting_balance?).to be false
   end
 
   it 'can_return_its_starting_balance' do
@@ -147,7 +145,7 @@ describe 'invoice' do
 
     invoice = Reji::Invoice.new(user, stripe_invoice)
 
-    expect(invoice.has_discount).to be true
+    expect(invoice.discount?).to be true
   end
 
   it 'can_return_its_tax' do
@@ -174,7 +172,7 @@ describe 'invoice' do
 
     invoice = Reji::Invoice.new(user, stripe_invoice)
 
-    expect(invoice.is_tax_exempt).to be true
+    expect(invoice.tax_exempt?).to be true
   end
 
   it 'can_determine_if_reverse_charge_applies' do

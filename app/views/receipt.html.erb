@@ -118,7 +118,7 @@
             <th align="left">Description</th>
             <th align="right">Date</th>
 
-            <% if invoice.has_tax %>
+            <% if invoice.tax? %>
                 <th align="right">Tax</th>
             <% end %>
 
@@ -129,13 +129,13 @@
           <% invoice.invoice_items.each do |item| %>
             <tr class="row">
               <td colspan="2"><%= item.description %></td>
-              <% if invoice.has_tax %>
+              <% if invoice.tax? %>
               <td>
                 <% if item.inclusive_tax_percentage > 0 %>
                   <%= item.inclusive_tax_percentage %>% incl.
                 <% end %>
 
-                <% if item.has_both_inclusive_and_exclusive_tax > 0 %>
+                <% if item.both_inclusive_and_exclusive_tax? %>
                   +
                 <% end %>
 
@@ -156,13 +156,13 @@
                 <%= subscription.start_date %>
                 <%= subscription.end_date %>
               </td>
-              <% if invoice.has_tax %>
+              <% if invoice.tax? %>
               <td>
                 <% if subscription.inclusive_tax_percentage > 0 %>
                   <%= subscription.inclusive_tax_percentage %>% incl.
                 <% end %>
 
-                <% if subscription.has_both_inclusive_and_exclusive_tax > 0 %>
+                <% if subscription.both_inclusive_and_exclusive_tax? %>
                   +
                 <% end %>
 
@@ -176,17 +176,17 @@
           <% end %>
 
           <!-- Display The Subtotal -->
-          <% if invoice.has_discount || invoice.has_tax || invoice.has_starting_balance %>
+          <% if invoice.discount? || invoice.tax? || invoice.starting_balance? %>
             <tr>
-              <td colspan="<%= invoice.has_tax ? 3 : 2 %>" style="text-align: right;">Subtotal</td>
+              <td colspan="<%= invoice.tax? ? 3 : 2 %>" style="text-align: right;">Subtotal</td>
               <td><%= invoice.subtotal %></td>
             </tr>
           <% end %>
 
           <!-- Display The Discount -->
-          <% if invoice.has_discount %>
+          <% if invoice.discount? %>
             <tr>
-              <td colspan="<%= invoice.has_tax ? 3 : 2 %>" style="text-align: right;">
+              <td colspan="<%= invoice.tax? ? 3 : 2 %>" style="text-align: right;">
                 <% if invoice.discount_is_percentage %>
                   <%= invoice.coupon %> (<%= invoice.percent_off %>% Off)
                 <% else %>
@@ -199,10 +199,10 @@
           <% end %>
 
           <!-- Display The Taxes -->
-          <% unless invoice.is_not_tax_exempt %>
+          <% unless invoice.not_tax_exempt? %>
             <tr>
-              <td colspan="<%= invoice.has_tax ? 3 : 2 %>" style="text-align: right;">
-                <% if invoice.is_tax_exempt %>
+              <td colspan="<%= invoice.tax? ? 3 : 2 %>" style="text-align: right;">
+                <% if invoice.tax_exempt? %>
                   Tax is exempted
                 <% else %>
                   Tax to be paid on reverse charge basis
@@ -215,7 +215,7 @@
               <tr>
                 <td colspan="3" style="text-align: right;">
                   <%= tax.display_name %> <%= tax.jurisdiction ? ' - '.tax.jurisdiction : '' %>
-                  (<%= tax.percentage %>%<%= tax.is_inclusive ? ' incl.' : '' %>)
+                  (<%= tax.percentage %>%<%= tax.inclusive? ? ' incl.' : '' %>)
                 </td>
                 <td><%= tax.amount %></td>
               </tr>
@@ -223,9 +223,9 @@
           <% end %>
 
           <!-- Starting Balance -->
-          <% if invoice.has_starting_balance %>
+          <% if invoice.starting_balance? %>
             <tr>
-              <td colspan="<%= invoice.has_tax ? 3 : 2 %>" style="text-align: right;">
+              <td colspan="<%= invoice.tax? ? 3 : 2 %>" style="text-align: right;">
                 Customer Balance
               </td>
               <td><%= invoice.starting_balance %></td>
@@ -234,7 +234,7 @@
 
           <!-- Display The Final Total -->
           <tr>
-            <td colspan="<%= invoice.has_tax ? 3 : 2 %>" style="text-align: right;">
+            <td colspan="<%= invoice.tax? ? 3 : 2 %>" style="text-align: right;">
               <strong>Total</strong>
             </td>
             <td>

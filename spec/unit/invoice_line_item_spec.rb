@@ -15,9 +15,9 @@ describe 'invoice line item' do
 
     stripe_invoice_line_item = Stripe::InvoiceLineItem.new
     stripe_invoice_line_item.tax_amounts = [
-      {:inclusive => true, :tax_rate => self.inclusive_tax_rate(5.0)},
-      {:inclusive => true, :tax_rate => self.inclusive_tax_rate(15.0)},
-      {:inclusive => false, :tax_rate => self.inclusive_tax_rate(21.0)},
+      { inclusive: true, tax_rate: inclusive_tax_rate(5.0) },
+      { inclusive: true, tax_rate: inclusive_tax_rate(15.0) },
+      { inclusive: false, tax_rate: inclusive_tax_rate(21.0) },
     ]
 
     item = Reji::InvoiceLineItem.new(invoice, stripe_invoice_line_item)
@@ -37,9 +37,9 @@ describe 'invoice line item' do
 
     stripe_invoice_line_item = Stripe::InvoiceLineItem.new
     stripe_invoice_line_item.tax_amounts = [
-      {:inclusive => true, :tax_rate => self.inclusive_tax_rate(5.0)},
-      {:inclusive => false, :tax_rate => self.exclusive_tax_rate(15.0)},
-      {:inclusive => false, :tax_rate => self.exclusive_tax_rate(21.0)},
+      { inclusive: true, tax_rate: inclusive_tax_rate(5.0) },
+      { inclusive: false, tax_rate: exclusive_tax_rate(15.0) },
+      { inclusive: false, tax_rate: exclusive_tax_rate(21.0) },
     ]
 
     item = Reji::InvoiceLineItem.new(invoice, stripe_invoice_line_item)
@@ -49,20 +49,18 @@ describe 'invoice line item' do
     expect(result).to eq(36)
   end
 
-  protected
-
   # Get a test inclusive Tax Rate.
-  def inclusive_tax_rate(percentage)
-    self.tax_rate(percentage)
+  protected def inclusive_tax_rate(percentage)
+    tax_rate(percentage)
   end
 
   # Get a test exclusive Tax Rate.
-  def exclusive_tax_rate(percentage)
-    self.tax_rate(percentage, false)
+  protected def exclusive_tax_rate(percentage)
+    tax_rate(percentage, false)
   end
 
   # Get a test exclusive Tax Rate.
-  def tax_rate(percentage, inclusive = true)
+  protected def tax_rate(percentage, inclusive = true)
     inclusive_tax_rate = Stripe::TaxRate.new
     inclusive_tax_rate.inclusive = inclusive
     inclusive_tax_rate.percentage = percentage

@@ -1,11 +1,20 @@
+inherit_from: .rubocop_todo.yml
+
 require: rubocop-rails
 
 AllCops:
   DisplayCopNames: true
   TargetRubyVersion: 2.4
 
+Layout/CaseIndentation:
+  EnforcedStyle: end
+  IndentOneStep: true
+
 Layout/EmptyComment:
   Enabled: false
+
+Layout/FirstArrayElementIndentation:
+  EnforcedStyle: consistent
 
 Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
@@ -17,14 +26,6 @@ Layout/LineLength:
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
-Lint/UselessAssignment:
-  Exclude:
-    - "spec/**/*.rb"
-
-Lint/SuppressedException:
-  Exclude:
-    - "spec/**/*.rb"
-
 Metrics/BlockLength:
   Max: 40
   Exclude:
@@ -32,29 +33,28 @@ Metrics/BlockLength:
     # directory from having to adhere to this rule.
     - "spec/**/*.rb"
 
-Metrics/AbcSize:
-  Enabled: false
-
 Metrics/ClassLength:
-  Max: 400
   Exclude:
     # Test classes get quite large, so exclude the test directory from having
     # to adhere to this rule.
     - "spec/**/*.rb"
 
 Metrics/MethodLength:
-  Max: 30
+  Max: 24
 
 Metrics/ModuleLength:
-  Max: 200
+  Enabled: false
 
 Naming/AccessorMethodName:
   Enabled: false
 
-Style/Documentation:
-  Enabled: false
+Style/AccessModifierDeclarations:
+  EnforcedStyle: inline
 
-Style/MultilineTernaryOperator:
+Style/HashEachMethods:
+  Enabled: true
+
+Style/NumericPredicate:
   Enabled: false
 
 Style/TrailingCommaInArrayLiteral:
@@ -62,6 +62,9 @@ Style/TrailingCommaInArrayLiteral:
 
 Style/TrailingCommaInHashLiteral:
   EnforcedStyleForMultiline: consistent_comma
+
+Rails/ApplicationController:
+  Enabled: false
 
 Rails/ApplicationRecord:
   Enabled: false

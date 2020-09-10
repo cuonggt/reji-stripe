@@ -36,8 +36,8 @@ module Reji
       @key = ENV['STRIPE_KEY']
       @secret = ENV['STRIPE_SECRET']
       @webhook = {
-        :secret => ENV['STRIPE_WEBHOOK_SECRET'],
-        :tolerance => ENV['STRIPE_WEBHOOK_TOLERANCE'] || 300,
+        secret: ENV['STRIPE_WEBHOOK_SECRET'],
+        tolerance: ENV['STRIPE_WEBHOOK_TOLERANCE'] || 300,
       }
       @model = ENV['REJI_MODEL'] || 'User'
       @model_id = ENV['REJI_MODEL_ID'] || 'user_id'

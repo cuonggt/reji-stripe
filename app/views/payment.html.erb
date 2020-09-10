@@ -34,7 +34,7 @@
       </p>
 
       <div class="bg-white rounded-lg shadow-xl p-4 sm:py-6 sm:px-10 mb-5">
-        <% if @payment.is_succeeded %>
+        <% if @payment.succeeded? %>
           <h1 class="text-xl mt-2 mb-4 text-gray-700">
             Payment Successful
           </h1>
@@ -104,7 +104,7 @@
       </div>
 
       <p class="text-center text-gray-500 text-sm">
-        © <%= Time.now.year %>. All rights reserved.
+        © <%= Time.current.year %>. All rights reserved.
       </p>
     </div>
   </div>
@@ -126,7 +126,7 @@
         errorMessage: ''
       },
 
-      <% if ! @payment.is_succeeded && ! @payment.is_cancelleed && ! @payment.requires_action %>
+      <% if ! @payment.succeeded? && ! @payment.is_cancelleed && ! @payment.requires_action %>
       mounted: function () {
         this.configureStripe();
       },

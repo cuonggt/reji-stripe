@@ -18,14 +18,14 @@ module Reji
       render template: 'payment'
     end
 
-    private
-
-    def verify_redirect_url
+    private def verify_redirect_url
       return if params[:redirect].blank?
 
       url = URI(params[:redirect])
 
-      raise ActionController::Forbidden.new('Redirect host mismatch.') if url.host.blank? || url.host != URI(request.original_url).host
+      return unless url.host.blank? || url.host != URI(request.original_url).host
+
+      raise ActionController::Forbidden, 'Redirect host mismatch.'
     end
   end
 end

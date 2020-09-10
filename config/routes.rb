@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
   scope 'stripe', as: 'stripe' do
     get 'payment/:id', to: 'reji/payment#show', as: 'payment'

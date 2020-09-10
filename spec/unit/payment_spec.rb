@@ -21,13 +21,13 @@ describe 'payment' do
     payment_intent = Stripe::PaymentIntent.new
     payment_intent.status = 'canceled'
     payment = Reji::Payment.new(payment_intent)
-    expect(payment.is_cancelled).to be true
+    expect(payment.cancelled?).to be true
   end
 
   it 'can_return_its_succeeded_status' do
     payment_intent = Stripe::PaymentIntent.new
     payment_intent.status = 'succeeded'
     payment = Reji::Payment.new(payment_intent)
-    expect(payment.is_succeeded).to be true
+    expect(payment.succeeded?).to be true
   end
 end

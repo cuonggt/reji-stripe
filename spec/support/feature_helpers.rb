@@ -17,23 +17,17 @@ module Reji
 
       sleep(2)
 
-      protected
-
-      def delete_stripe_resource(resource)
-        begin
-          resource.delete
-        rescue Stripe::InvalidRequestError => e
-          #
-        end
+      protected def delete_stripe_resource(resource)
+        resource.delete
+      rescue Stripe::InvalidRequestError => _e
+        #
       end
 
-      def create_customer(description = 'cuong', options = {})
+      protected def create_customer(description = 'cuong', options = {})
         User.create({
-          :email => "#{description}@reji-test.com",
+          email: "#{description}@reji-test.com",
         }.merge(options))
       end
     end
   end
 end
-
-

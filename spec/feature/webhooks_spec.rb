@@ -8,19 +8,19 @@ describe 'webhooks', type: :request do
     @plan_id = "#{stripe_prefix}monthly-10-#{SecureRandom.hex(5)}"
 
     Stripe::Product.create({
-      :id => @product_id,
-      :name => 'Rails Reji Test Product',
-      :type => 'service',
+      id: @product_id,
+      name: 'Rails Reji Test Product',
+      type: 'service',
     })
 
     Stripe::Plan.create({
-      :id => @plan_id,
-      :nickname => 'Monthly $10',
-      :currency => 'USD',
-      :interval => 'month',
-      :billing_scheme => 'per_unit',
-      :amount => 1000,
-      :product => @product_id,
+      id: @plan_id,
+      nickname: 'Monthly $10',
+      currency: 'USD',
+      interval: 'month',
+      billing_scheme: 'per_unit',
+      amount: 1000,
+      product: @product_id,
     })
   end
 
@@ -30,61 +30,61 @@ describe 'webhooks', type: :request do
   end
 
   it 'test_subscriptions_are_updated' do
-    user = create_customer('subscriptions_are_updated', {:stripe_id => 'cus_foo'})
+    user = create_customer('subscriptions_are_updated', { stripe_id: 'cus_foo' })
 
     subscription = user.subscriptions.create({
-      :name => 'main',
-      :stripe_id => 'sub_foo',
-      :stripe_plan => 'plan_foo',
-      :stripe_status => 'active',
+      name: 'main',
+      stripe_id: 'sub_foo',
+      stripe_plan: 'plan_foo',
+      stripe_status: 'active',
     })
 
     item = subscription.items.create({
-      :stripe_id => 'it_foo',
-      :stripe_plan => 'plan_bar',
-      :quantity => 1,
+      stripe_id: 'it_foo',
+      stripe_plan: 'plan_bar',
+      quantity: 1,
     })
 
-    post '/stripe/webhook', :params => {
-      :id => 'foo',
-      :type => 'customer.subscription.updated',
-      :data => {
-        :object => {
-          :id => subscription.stripe_id,
-          :customer => 'cus_foo',
-          :cancel_at_period_end => false,
-          :quantity => 5,
-          :items => {
-            :data => [
+    post '/stripe/webhook', params: {
+      id: 'foo',
+      type: 'customer.subscription.updated',
+      data: {
+        object: {
+          id: subscription.stripe_id,
+          customer: 'cus_foo',
+          cancel_at_period_end: false,
+          quantity: 5,
+          items: {
+            data: [
               {
-                :id => 'bar',
-                :plan => {:id => 'plan_foo'},
-                :quantity => 10,
-              }
+                id: 'bar',
+                plan: { id: 'plan_foo' },
+                quantity: 10,
+              },
             ],
           },
         },
       },
-    }.to_json, :headers => { 'CONTENT_TYPE' => 'application/json' }
+    }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
 
     expect(response.status).to eq(200)
 
     expect(Reji::Subscription.where({
-      :id => subscription.id,
-      :user_id => user.id,
-      :stripe_id => 'sub_foo',
-      :quantity => 5,
+      id: subscription.id,
+      user_id: user.id,
+      stripe_id: 'sub_foo',
+      quantity: 5,
     }).exists?).to be true
 
     expect(Reji::SubscriptionItem.where({
-      :subscription_id => subscription.id,
-      :stripe_id => 'bar',
-      :stripe_plan => 'plan_foo',
-      :quantity => 10,
+      subscription_id: subscription.id,
+      stripe_id: 'bar',
+      stripe_plan: 'plan_foo',
+      quantity: 10,
     }).exists?).to be true
 
     expect(Reji::SubscriptionItem.where({
-      :id => item.id,
+      id: item.id,
     }).exists?).to be false
   end
 
@@ -95,18 +95,18 @@ describe 'webhooks', type: :request do
 
     expect(subscription.cancelled).to be true
 
-    post '/stripe/webhook', :params => {
-      :id => 'foo',
-      :type => 'customer.subscription.updated',
-      :data => {
-        :object => {
-          :id => subscription.stripe_id,
-          :customer => user.stripe_id,
-          :cancel_at_period_end => false,
-          :quantity => 1,
+    post '/stripe/webhook', params: {
+      id: 'foo',
+      type: 'customer.subscription.updated',
+      data: {
+        object: {
+          id: subscription.stripe_id,
+          customer: user.stripe_id,
+          cancel_at_period_end: false,
+          quantity: 1,
         },
       },
-    }.to_json, :headers => { 'CONTENT_TYPE' => 'application/json' }
+    }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
 
     expect(response.status).to eq(200)
 
@@ -119,17 +119,17 @@ describe 'webhooks', type: :request do
 
     expect(subscription.cancelled).to be false
 
-    post '/stripe/webhook', :params => {
-      :id => 'foo',
-      :type => 'customer.subscription.deleted',
-      :data => {
-        :object => {
-          :id => subscription.stripe_id,
-          :customer => user.stripe_id,
-          :quantity => 1,
+    post '/stripe/webhook', params: {
+      id: 'foo',
+      type: 'customer.subscription.deleted',
+      data: {
+        object: {
+          id: subscription.stripe_id,
+          customer: user.stripe_id,
+          quantity: 1,
         },
       },
-    }.to_json, :headers => { 'CONTENT_TYPE' => 'application/json' }
+    }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
 
     expect(response.status).to eq(200)
 
@@ -142,18 +142,18 @@ describe 'webhooks', type: :request do
 
     expect(user.subscriptions.count).to eq(1)
 
-    post '/stripe/webhook', :params => {
-      :id => 'foo',
-      :type => 'customer.subscription.updated',
-      :data => {
-        :object => {
-          :id => subscription.stripe_id,
-          :customer => user.stripe_id,
-          :status => 'incomplete_expired',
-          :quantity => 1,
+    post '/stripe/webhook', params: {
+      id: 'foo',
+      type: 'customer.subscription.updated',
+      data: {
+        object: {
+          id: subscription.stripe_id,
+          customer: user.stripe_id,
+          status: 'incomplete_expired',
+          quantity: 1,
         },
       },
-    }.to_json, :headers => { 'CONTENT_TYPE' => 'application/json' }
+    }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
 
     expect(response.status).to eq(200)
 

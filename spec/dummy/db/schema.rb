@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-ActiveRecord::Schema.define(version: 2020_01_01_00_00_00) do
+ActiveRecord::Schema.define do
   create_table 'subscription_items', force: true do |t|
     t.bigint 'subscription_id', null: false
     t.string 'stripe_id', null: false
@@ -9,7 +9,7 @@ ActiveRecord::Schema.define(version: 2020_01_01_00_00_00) do
     t.datetime 'created_at', precision: 6, null: false
     t.datetime 'updated_at', precision: 6, null: false
     t.index ['stripe_id'], name: 'index_subscription_items_on_stripe_id'
-    t.index ['subscription_id', 'stripe_plan'], name: 'index_subscription_items_on_subscription_id_and_stripe_plan', unique: true
+    t.index %w[subscription_id stripe_plan], name: 'index_subscription_items_on_subscription_id_and_stripe_plan', unique: true
   end
 
   create_table 'subscriptions', force: true do |t|
@@ -23,7 +23,7 @@ ActiveRecord::Schema.define(version: 2020_01_01_00_00_00) do
     t.timestamp 'ends_at'
     t.datetime 'created_at', precision: 6, null: false
     t.datetime 'updated_at', precision: 6, null: false
-    t.index ['user_id', 'stripe_status'], name: 'index_subscriptions_on_user_id_and_stripe_status'
+    t.index %w[user_id stripe_status], name: 'index_subscriptions_on_user_id_and_stripe_status'
   end
 
   create_table 'users', force: true do |t|
@@ -37,4 +37,3 @@ ActiveRecord::Schema.define(version: 2020_01_01_00_00_00) do
     t.index ['email'], name: 'index_users_on_email', unique: true
   end
 end
-

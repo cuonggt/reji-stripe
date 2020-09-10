@@ -11,11 +11,7 @@ class User < ActiveRecord::Base
     @plan_tax_rates || {}
   end
 
-  def plan_tax_rates=(value)
-    @plan_tax_rates = value
-  end
+  attr_writer :plan_tax_rates
 
-  def tax_rates=(value)
-    @tax_rates = value
-  end
+  attr_writer :tax_rates
 end

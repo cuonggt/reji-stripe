@@ -55,7 +55,7 @@ describe 'charges', type: :request do
     begin
       user.charge(1000, 'pm_card_threeDSecure2Required')
 
-      raise RSpec::Expectations::ExpectationNotMetError.new('Expected exception PaymentActionRequiredError was not thrown.')
+      raise RSpec::Expectations::ExpectationNotMetError, 'Expected exception PaymentActionRequiredError was not thrown.'
     rescue Reji::PaymentActionRequiredError => e
       # Assert that the payment needs an extra action.
       expect(e.payment.requires_action).to be true

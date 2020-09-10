@@ -15,8 +15,8 @@ Reji.configure do |config|
   # your Stripe webhook handling controllers. The tolerance setting will
   # check the drift between the current time and the signed request's.
   config.webhook = {
-    :secret => ENV['STRIPE_WEBHOOK_SECRET'],
-    :tolerance => ENV['STRIPE_WEBHOOK_TOLERANCE'] || 300,
+    secret: ENV['STRIPE_WEBHOOK_SECRET'],
+    tolerance: ENV['STRIPE_WEBHOOK_TOLERANCE'] || 300,
   }
 
   # Reji Model
