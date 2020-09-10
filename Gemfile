@@ -6,4 +6,4 @@ gemspec
 
 gem 'appraisal'
 gem 'pry', require: false
-gem 'rubocop-rails', require: false
+gem 'rubocop-rails'
