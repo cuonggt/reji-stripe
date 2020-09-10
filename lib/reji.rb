@@ -67,6 +67,10 @@ module Reji
     self
   end
 
+  def self.deactivate_past_due=(value)
+    @@deactivate_past_due = value
+  end
+
   def self.deactivate_past_due
     @@deactivate_past_due
   end
