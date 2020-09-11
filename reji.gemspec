@@ -16,9 +16,8 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = Gem::Requirement.new('>= 2.4.0')
 
-  s.files = `git ls-files`.split("\n")
-  s.require_paths = ['lib']
-  s.test_files = `git ls-files -- {spec}/*`.split("\n")
+  s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
+  s.test_files = Dir['{spec}/**/*']
 
   s.add_dependency 'actionmailer', '>= 5.0'
   s.add_dependency 'activerecord', '>= 5.0'

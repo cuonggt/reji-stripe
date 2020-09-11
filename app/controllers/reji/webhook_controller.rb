@@ -11,7 +11,7 @@ module Reji
 
       return missing_method if type.nil?
 
-      method = "handle_#{payload['type'].gsub('.', '_')}"
+      method = "handle_#{payload['type'].tr('.', '_')}"
 
       respond_to?(method, true) ? send(method, payload) : missing_method
     end
